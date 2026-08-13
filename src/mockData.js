@@ -50,79 +50,46 @@ export const MOCK_USERS = [
   }
 ];
 
-export const MOCK_CYCLES = [
+export const MOCK_MEALS = [
   {
-    id: "cycle1",
-    name: "סבב תל אביב מרכז - שבוע אוגוסט",
-    location: "תל אביב",
-    status: "active",
-    participants: ["currentUser", "user1", "user2", "user3"],
-    dinners: [
-      {
-        id: "dinner1",
-        hostId: "user1",
-        date: "יום ראשון, 10 באוגוסט",
-        status: "completed",
-        menu: {
-          appetizer: "קרפצ'יו סלק עם גבינת עיזים מקורמלת, אגוזי מלך ובלסמי מצומצם",
-          main: "טורטליני דלעת ערמונים בחמאת מרווה וערמונים קלויים",
-          dessert: "טארט לימון מפורק עם מרנג איטלקי שרוף"
-        },
-        ratings: {
-          currentUser: { food: 8, hospitality: 9, atmosphere: 8 },
-          user2: { food: 9, hospitality: 10, atmosphere: 9 },
-          user3: { food: 7, hospitality: 8, atmosphere: 9 }
-        }
-      },
-      {
-        id: "dinner2",
-        hostId: "user2",
-        date: "יום שלישי, 12 באוגוסט",
-        status: "completed",
-        menu: {
-          appetizer: "סלט אנדייב עם אגסים ביין אדום, גבינת כחולה ופקאן מסוכר",
-          main: "פילה סלמון בגלזורה של מייפל וסויה, על מצע פירה בטטה קרמי ללא לקטוז",
-          dessert: "סופלה שוקולד ולרונה עשיר ללא גלוטן עם גלידת וניל מדגסקר"
-        },
-        ratings: {
-          currentUser: { food: 9, hospitality: 9, atmosphere: 10 },
-          user1: { food: 9, hospitality: 8, atmosphere: 9 },
-          user3: { food: 8, hospitality: 9, atmosphere: 8 }
-        }
-      },
-      {
-        id: "dinner3",
-        hostId: "currentUser",
-        date: "יום חמישי, 14 באוגוסט",
-        status: "upcoming",
-        menu: {
-          appetizer: "סביצ'ה דג ים טרי על קרם אבוקדו, כוסברה, צ'ילי אדום וטורטייה קריספית",
-          main: "חריימה בורי חריף אסלי בקדירת חרס לצד חלה מתוקה קלועה חמה",
-          dessert: "מלבי קוקוס עשיר עם מי ורדים, פיסטוקים קלויים וקוקוס קלוי (פרווה)"
-        },
-        ratings: {}
-      },
-      {
-        id: "dinner4",
-        hostId: "user3",
-        date: "יום שבת, 16 באוגוסט",
-        status: "upcoming",
-        menu: {
-          appetizer: "אסאדו מפורק על לחמניית בריוש מאודה עם איולי כמהין ביתי",
-          main: "סלייסים של אנטריקוט מיושן 28 יום עם תפוחי אדמה מדורה וצ'ימיצ'ורי",
-          dessert: "מוס שוקולד מריר ואספרסו עם שברי אגוזי לוז מקורמלים"
-        },
-        ratings: {}
-      }
-    ]
+    id: "meal1",
+    name: "ערב שבת איטלקי קלאסי",
+    area: "נווה צדק",
+    date: "יום שישי, 21 באוגוסט ב-20:00",
+    description: "מוזמנים לארוחה איטלקית עשירה ומפנקת עם פסטות עבודת יד, פוקצ'ה חמה ויין איכותי.",
+    hostId: "user1",
+    preferences: ["צמחוני", "כשר"],
+    maxGuests: 4,
+    participants: ["user1", "user2"],
+    createdAt: Date.now() - 86400000
+  },
+  {
+    id: "meal2",
+    name: "פסטיבל בשרים מעושנים",
+    area: "צפון ישן",
+    date: "יום חמישי, 20 באוגוסט ב-19:30",
+    description: "נתחי בשר מובחרים שעברו עישון איטי של 12 שעות במעשנת שלי במרפסת. בירה חופשית!",
+    hostId: "user3",
+    preferences: ["כשר"],
+    maxGuests: 6,
+    participants: ["user3"],
+    createdAt: Date.now() - 43200000
+  },
+  {
+    id: "meal3",
+    name: "סעודה טבעונית בריאה מהטבע",
+    area: "כרם התימנים",
+    date: "יום שבת, 22 באוגוסט ב-13:00",
+    description: "מגוון מנות המבוססות על חומרי גלם טריים מהשוק, קטניות, ירקות צלויים וקינוח טבעוני מפתיע.",
+    hostId: "user2",
+    preferences: ["טבעוני", "ללא גלוטן", "צמחוני"],
+    maxGuests: 4,
+    participants: ["user2", "user1"],
+    createdAt: Date.now()
   }
 ];
 
 export const MOCK_CHAT = [
-  { id: "m1", userId: "user1", text: "היי לכולם! מתרגש מאוד לארח אתכם מחר לארוחה הראשונה!", timestamp: "18:00" },
-  { id: "m2", userId: "user2", text: "איזה כיף! יש מצב לקבל כיוון לגבי המרכיבים? רגישות לגלוטן פשוט :)", timestamp: "18:05" },
-  { id: "m3", userId: "user1", text: "אל תדאגי מיכל, המנה הראשונה והקינוח מותאמים לחלוטין ללא גלוטן, ולמנה העיקרית יש לי פסטה מיוחדת ללא גלוטן עבורך!", timestamp: "18:08" },
-  { id: "m4", userId: "user2", text: "וואו מדהים! תודה רבה יובל!", timestamp: "18:10" },
-  { id: "m5", userId: "user3", text: "אני בא רעב. יובל, יש בירה מקרר?", timestamp: "19:30" },
-  { id: "m6", userId: "user1", text: "ברור דניאל, קרות מהחבית!", timestamp: "19:32" }
+  { id: "m1", userId: "user1", text: "היי לכולם! מתרגש מאוד לארח אתכם!", timestamp: "18:00" },
+  { id: "m2", userId: "user2", text: "איזה כיף! תודה רבה על האירוח!", timestamp: "18:05" }
 ];

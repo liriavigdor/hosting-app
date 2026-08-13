@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper: Check if user is logged in
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // User profile rules
+    match /users/{userId} {
+      allow read: if true; // Let everyone see other hosts' profiles for trust
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Meals rules
+    match /meals/{mealId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Chat messages
+    match /chats/{chatId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
