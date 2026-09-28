@@ -1,27 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { db } from './firebase';
 import './index.css';
 
 // --- MOCK DATA ---
 const DEFAULT_MENU = [
-  { id: 1, name: 'אספרסו קצר', icon: '☕', category: 'קפה חם' },
-  { id: 2, name: 'אספרסו כפול קצר', icon: '☕', category: 'קפה חם' },
-  { id: 3, name: 'אספרסו ארוך', icon: '☕', category: 'קפה חם' },
-  { id: 4, name: 'אספרסו כפול ארוך', icon: '☕', category: 'קפה חם' },
-  { id: 5, name: 'אמריקנו חם', icon: '☕', category: 'קפה חם' },
-  { id: 6, name: 'אמריקנו קר', icon: '🧊', category: 'קפה קר' },
-  { id: 7, name: 'קפה קר', icon: '🧋', category: 'קפה קר' },
-  { id: 8, name: 'שוקו חם', icon: '🍫', category: 'קפה חם' },
-  { id: 9, name: 'שוקו קר', icon: '🧋', category: 'קפה קר' },
-  { id: 10, name: 'תה חם', icon: '🍵', category: 'קפה חם' },
-  { id: 11, name: 'ברד פסיפלורה', icon: '🍧', category: 'ברד' },
-  { id: 12, name: 'ברד פטל', icon: '🍧', category: 'ברד' },
-  { id: 13, name: 'ברד משמש', icon: '🍧', category: 'ברד' },
-  { id: 14, name: 'ברד אבטיח', icon: '🍉', category: 'ברד' },
-  { id: 15, name: 'אייס קפה', icon: '🥤', category: 'אייסים' },
-  { id: 16, name: 'אייס וניל', icon: '🥤', category: 'אייסים' },
-  { id: 17, name: 'גלידה', icon: '🍦', category: 'מתוקים' },
-  { id: 18, name: 'לימונדה', icon: '🍋', category: 'שתייה קרה' },
-  { id: 19, name: 'טוסט עם גבינה', icon: '🥪', category: 'אוכל' }
+  { id: 1, name: 'אספרסו', icon: '☕', category: 'קפה חם', options: ['קצר', 'כפול קצר', 'ארוך', 'כפול ארוך'] },
+  { id: 2, name: 'אמריקנו', icon: '☕', category: 'קפה חם', options: ['חם', 'קר'] },
+  { id: 3, name: 'קפה קר', icon: '🧋', category: 'קפה קר' },
+  { id: 4, name: 'שוקו', icon: '🍫', category: 'שתייה חמה', options: ['חם', 'קר'] },
+  { id: 5, name: 'תה חם', icon: '🍵', category: 'שתייה חמה' },
+  { id: 6, name: 'ברד', icon: '🍧', category: 'ברד', options: ['פסיפלורה', 'פטל', 'משמש', 'אבטיח'] },
+  { id: 7, name: 'אייס קפה', icon: '🥤', category: 'אייסים' },
+  { id: 8, name: 'אייס וניל', icon: '🥤', category: 'אייסים' },
+  { id: 9, name: 'גלידה', icon: '🍦', category: 'מתוקים' },
+  { id: 10, name: 'לימונדה', icon: '🍋', category: 'שתייה קרה' },
+  { id: 11, name: 'טוסט עם גבינה', icon: '🥪', category: 'אוכל' }
 ];
 
 export default function App() {
@@ -29,39 +23,50 @@ export default function App() {
   const isShirel = window.location.search.includes('shirel');
   const [view, setView] = useState(isShirel ? 'barista' : 'customer'); 
   
-  // Persist state to localStorage so it syncs across tabs
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('barista_orders');
-    return saved ? JSON.parse(saved) : [];
-  });
+  // App State
+  const [orders, setOrders] = useState([]);
+  const [products, setProducts] = useState([]);
 
-  const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('barista_products');
-    return saved ? JSON.parse(saved) : DEFAULT_MENU;
-  });
-
-  // Sync state between tabs dynamically
+  // Fetch from Firebase in real-time
   useEffect(() => {
-    const handleStorageChange = () => {
-      const savedOrders = localStorage.getItem('barista_orders');
-      if (savedOrders) setOrders(JSON.parse(savedOrders));
+    // 1. Listen to products
+    const unsubscribeProducts = onSnapshot(
+      collection(db, 'products'),
+      (snapshot) => {
+        const prodsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (prodsData.length === 0) {
+          // If empty in DB (or just started), just use the local DEFAULT_MENU for now
+          // to avoid a blank screen while setting up Firebase
+          setProducts(DEFAULT_MENU);
+        } else {
+          setProducts(prodsData);
+        }
+      },
+      (error) => {
+        console.error("Firebase permissions/read error (products):", error);
+        // Fallback to local default if Firebase is not yet fully configured
+        setProducts(DEFAULT_MENU);
+      }
+    );
 
-      const savedProducts = localStorage.getItem('barista_products');
-      if (savedProducts) setProducts(JSON.parse(savedProducts));
+    // 2. Listen to orders
+    const unsubscribeOrders = onSnapshot(
+      collection(db, 'orders'),
+      (snapshot) => {
+        const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setOrders(ordersData);
+      },
+      (error) => {
+        console.error("Firebase permissions/read error (orders):", error);
+        setOrders([]);
+      }
+    );
+
+    return () => {
+      unsubscribeProducts();
+      unsubscribeOrders();
     };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
-
-  // Save changes to localStorage
-  useEffect(() => {
-    localStorage.setItem('barista_orders', JSON.stringify(orders));
-  }, [orders]);
-
-  useEffect(() => {
-    localStorage.setItem('barista_products', JSON.stringify(products));
-  }, [products]);
 
   // Barista View State
   const [baristaTab, setBaristaTab] = useState('orders'); // 'orders', 'menu'
@@ -75,67 +80,94 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('הכל');
 
   const addToCart = (product) => {
-    setCart([...cart, product]);
+    const newItem = {
+      cartId: Math.random().toString(36).substr(2, 9),
+      product: product,
+      selectedOption: product.options ? product.options[0] : null
+    };
+    setCart([...cart, newItem]);
   };
 
-  const removeFromCart = (indexToRemove) => {
-    setCart(cart.filter((_, idx) => idx !== indexToRemove));
+  const updateCartItemOption = (cartId, newOption) => {
+    setCart(cart.map(item => item.cartId === cartId ? { ...item, selectedOption: newOption } : item));
   };
 
-  const submitOrder = (e) => {
+  const removeFromCart = (cartId) => {
+    setCart(cart.filter(item => item.cartId !== cartId));
+  };
+
+  const submitOrder = async (e) => {
     e.preventDefault();
     if (!customerName.trim() || cart.length === 0) return;
     
     // Check if there's any coffee/drink in cart to mention the milk
-    const orderItems = cart.map(item => item.name);
+    const orderItems = cart.map(item => {
+      return item.selectedOption ? `${item.product.name} (${item.selectedOption})` : item.product.name;
+    });
     
     // Check if any item needs milk
     const needsMilk = cart.some(item => 
-      item.name.includes('אספרסו') || 
-      item.name.includes('אמריקנו') || 
-      item.name.includes('שוקו') || 
-      (item.name.includes('קפה') && !item.name.includes('אייס'))
+      item.product.name.includes('אספרסו') || 
+      item.product.name.includes('אמריקנו') || 
+      item.product.name.includes('שוקו') || 
+      (item.product.name.includes('קפה') && !item.product.name.includes('אייס'))
     );
 
     const finalMilkType = needsMilk ? milkType : 'ללא';
 
     const newOrder = {
-      id: Math.random().toString(36).substr(2, 9),
       customerName,
       items: orderItems,
       milk: finalMilkType,
       status: 'pending',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: Date.now() // to sort orders
     };
 
-    setOrders([...orders, newOrder]);
-    setCart([]);
-    setCustomerName('');
-    setMilkType('רגיל');
-    alert('ההזמנה נשלחה בהצלחה לשיראל!');
+    try {
+      await addDoc(collection(db, 'orders'), newOrder);
+      setCart([]);
+      setCustomerName('');
+      setMilkType('רגיל');
+      alert('ההזמנה נשלחה בהצלחה לשיראל!');
+    } catch (err) {
+      console.error(err);
+      alert('שגיאה בשליחת ההזמנה.');
+    }
   };
 
-  const completeOrder = (orderId) => {
-    setOrders(orders.filter(order => order.id !== orderId));
+  const completeOrder = async (orderId) => {
+    try {
+      await deleteDoc(doc(db, 'orders', orderId));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const addProduct = (e) => {
+  const addProduct = async (e) => {
     e.preventDefault();
     if (!newProductName.trim()) return;
     
     const newProduct = {
-      id: Date.now(),
       name: newProductName,
       icon: newProductIcon
     };
     
-    setProducts([...products, newProduct]);
-    setNewProductName('');
+    try {
+      await addDoc(collection(db, 'products'), newProduct);
+      setNewProductName('');
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const deleteProduct = (id) => {
+  const deleteProduct = async (id) => {
     if(window.confirm('האם למחוק פריט זה מהתפריט?')) {
-      setProducts(products.filter(p => p.id !== id));
+      try {
+        await deleteDoc(doc(db, 'products', id));
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -170,10 +202,23 @@ export default function App() {
                 <div className="order-summary">
                   <h3>ההזמנה שלי ({cart.length} פריטים)</h3>
                   <ul className="cart-list">
-                    {cart.map((item, idx) => (
-                      <li key={idx}>
-                        <span>{item.icon} {item.name}</span>
-                        <button className="btn-remove" onClick={() => removeFromCart(idx)}>❌</button>
+                    {cart.map((item) => (
+                      <li key={item.cartId}>
+                        <div className="cart-item-details">
+                          <span className="cart-item-name">{item.product.icon} {item.product.name}</span>
+                          {item.product.options && (
+                            <select 
+                              className="cart-inline-select"
+                              value={item.selectedOption} 
+                              onChange={(e) => updateCartItemOption(item.cartId, e.target.value)}
+                            >
+                              {item.product.options.map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                        <button className="btn-remove" onClick={() => removeFromCart(item.cartId)}>❌</button>
                       </li>
                     ))}
                   </ul>
@@ -181,10 +226,10 @@ export default function App() {
               
                 <form onSubmit={submitOrder} className="order-form-vertical">
                   {cart.some(item => 
-                    item.name.includes('אספרסו') || 
-                    item.name.includes('אמריקנו') || 
-                    item.name.includes('שוקו') || 
-                    (item.name.includes('קפה') && !item.name.includes('אייס'))
+                    item.product.name.includes('אספרסו') || 
+                    item.product.name.includes('אמריקנו') || 
+                    item.product.name.includes('שוקו') || 
+                    (item.product.name.includes('קפה') && !item.product.name.includes('אייס'))
                   ) && (
                     <div className="form-group">
                       <label>סוג חלב (לקפה/שוקו):</label>
