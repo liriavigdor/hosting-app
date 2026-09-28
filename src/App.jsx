@@ -354,9 +354,6 @@ export default function App() {
                       <option value="🥪">🥪 אוכל</option>
                       <option value="🥐">🥐 מאפה</option>
                     </select>
-                    <select name="category" required onChange={(e) => setNewProductName(newProductName + ' | ' + e.target.value)} style={{display: 'none'}}>
-                       {/* Simplified for pilot */}
-                    </select>
                     <button type="submit" className="btn-primary">הוסף לתפריט</button>
                   </form>
                 </div>
