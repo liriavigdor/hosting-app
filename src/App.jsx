@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import './index.css';
 
@@ -173,12 +173,23 @@ export default function App() {
   };
 
   const deleteProduct = async (id) => {
-    if(window.confirm('האם למחוק פריט זה מהתפריט?')) {
+    if(window.confirm('האם למחוק פריט זה מהתפריט לחלוטין?')) {
       try {
         await deleteDoc(doc(db, 'products', id));
       } catch (err) {
         console.error(err);
       }
+    }
+  };
+
+  const toggleProductVisibility = async (product) => {
+    try {
+      const productRef = doc(db, 'products', product.id);
+      await updateDoc(productRef, {
+        hidden: !product.hidden
+      });
+    } catch (err) {
+      console.error('Error toggling visibility:', err);
     }
   };
 
@@ -200,7 +211,10 @@ export default function App() {
             </div>
 
             <div className="products-grid">
-              {products.filter(p => selectedCategory === 'הכל' || (p.category || 'כללי') === selectedCategory).map(product => (
+              {products
+                .filter(p => !p.hidden)
+                .filter(p => selectedCategory === 'הכל' || (p.category || 'כללי') === selectedCategory)
+                .map(product => (
                 <div key={product.id} className="product-card" onClick={() => addToCart(product)}>
                   <span className="product-icon">{product.icon}</span>
                   <h3>{product.name}</h3>
@@ -362,12 +376,25 @@ export default function App() {
                   <h3>התפריט המוצג כרגע ללקוחות:</h3>
                   <div className="menu-items-table">
                     {products.map(product => (
-                      <div key={product.id} className="menu-item-row">
+                      <div key={product.id} className="menu-item-row" style={{ opacity: product.hidden ? 0.5 : 1 }}>
                         <div className="menu-item-info">
                           <span>{product.icon}</span>
-                          <span className="product-name">{product.name}</span>
+                          <span className="product-name" style={{ textDecoration: product.hidden ? 'line-through' : 'none' }}>
+                            {product.name} {product.hidden && '(מוסתר)'}
+                          </span>
                         </div>
-                        <button className="btn-danger" onClick={() => deleteProduct(product.id)}>מחק פריט</button>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <button 
+                            className="btn-secondary" 
+                            onClick={() => toggleProductVisibility(product)}
+                            title={product.hidden ? "הצג ללקוחות" : "הסתר מלקוחות"}
+                          >
+                            {product.hidden ? '🙈 להציג' : '👁️ להסתיר'}
+                          </button>
+                          <button className="btn-danger" onClick={() => deleteProduct(product.id)} title="מחיקה סופית" style={{ padding: '8px 12px' }}>
+                            🗑️
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
