@@ -222,3 +222,28 @@ body {
   background: #ccc !important;
   cursor: not-allowed;
 }
+
+.toggle-visibility-btn {
+  background: transparent;
+  border: 1px solid #ddd;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  transition: all 0.3s;
+  font-size: 0.95rem;
+}
+.toggle-visibility-btn.is-hidden {
+  background: #fff0f0;
+  color: var(--danger-color);
+  border-color: #ffcdd2;
+}
+.toggle-visibility-btn.is-visible {
+  background: #f0fdf4;
+  color: #10b981;
+  border-color: #bbf7d0;
+}
+

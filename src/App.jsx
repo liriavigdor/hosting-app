@@ -402,13 +402,14 @@ export default function App() {
                         </div>
                         <div style={{ display: 'flex', gap: '10px' }}>
                           <button 
-                            className="btn-secondary" 
+                            className={`toggle-visibility-btn ${product.hidden ? 'is-hidden' : 'is-visible'}`} 
                             onClick={() => toggleProductVisibility(product)}
-                            title={product.hidden ? "הצג ללקוחות" : "הסתר מלקוחות"}
+                            title={product.hidden ? "מוסתר מלקוחות - לחץ להצגה" : "גלוי ללקוחות - לחץ להסתרה"}
                           >
-                            {product.hidden ? '🙈 להציג' : '👁️ להסתיר'}
+                            <span style={{ fontSize: '1.2rem' }}>{product.hidden ? '🙈' : '👁️'}</span>
+                            <span>{product.hidden ? 'מוסתר' : 'פעיל'}</span>
                           </button>
-                          <button className="btn-danger" onClick={() => deleteProduct(product.id)} title="מחיקה סופית" style={{ padding: '8px 12px' }}>
+                          <button className="btn-danger" onClick={() => deleteProduct(product.id)} title="מחיקה סופית" style={{ padding: '8px 12px', border: 'none', background: '#ffebeb', borderRadius: '12px' }}>
                             🗑️
                           </button>
                         </div>
