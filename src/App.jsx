@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './index.css';
 
 // --- MOCK DATA ---
@@ -29,8 +29,39 @@ export default function App() {
   const isShirel = window.location.search.includes('shirel');
   const [view, setView] = useState(isShirel ? 'barista' : 'customer'); 
   
-  const [orders, setOrders] = useState([]);
-  const [products, setProducts] = useState(DEFAULT_MENU);
+  // Persist state to localStorage so it syncs across tabs
+  const [orders, setOrders] = useState(() => {
+    const saved = localStorage.getItem('barista_orders');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [products, setProducts] = useState(() => {
+    const saved = localStorage.getItem('barista_products');
+    return saved ? JSON.parse(saved) : DEFAULT_MENU;
+  });
+
+  // Sync state between tabs dynamically
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedOrders = localStorage.getItem('barista_orders');
+      if (savedOrders) setOrders(JSON.parse(savedOrders));
+
+      const savedProducts = localStorage.getItem('barista_products');
+      if (savedProducts) setProducts(JSON.parse(savedProducts));
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Save changes to localStorage
+  useEffect(() => {
+    localStorage.setItem('barista_orders', JSON.stringify(orders));
+  }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem('barista_products', JSON.stringify(products));
+  }, [products]);
 
   // Barista View State
   const [baristaTab, setBaristaTab] = useState('orders'); // 'orders', 'menu'
