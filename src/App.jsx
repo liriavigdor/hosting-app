@@ -78,6 +78,7 @@ export default function App() {
   const [customerName, setCustomerName] = useState('');
   const [milkType, setMilkType] = useState('רגיל'); // רגיל / סויה
   const [selectedCategory, setSelectedCategory] = useState('הכל');
+  const [shakeInput, setShakeInput] = useState(false);
 
   const addToCart = (product) => {
     const newItem = {
@@ -98,8 +99,18 @@ export default function App() {
 
   const submitOrder = async (e) => {
     e.preventDefault();
-    if (!customerName.trim() || cart.length === 0) return;
+    if (cart.length === 0) return;
     
+    if (!customerName.trim()) {
+      setShakeInput(true);
+      setTimeout(() => setShakeInput(false), 500);
+      
+      // We can also vibrate the device if supported
+      if (navigator.vibrate) {
+        navigator.vibrate(200);
+      }
+      return;
+    }
     // Check if there's any coffee/drink in cart to mention the milk
     const orderItems = cart.map(item => {
       return item.selectedOption ? `${item.product.name} (${item.selectedOption})` : item.product.name;
@@ -241,30 +252,27 @@ export default function App() {
                     </div>
                   )}
 
-                  <div className="form-group name-input-highlight" style={{ marginTop: '15px', background: '#fff0f0', padding: '15px', borderRadius: '10px', border: '2px dashed #ff9a9e' }}>
-                    <label style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#d32f2f', marginBottom: '8px', display: 'block' }}>
-                      איך קוראים לך? (חובה)
-                    </label>
+                  <div className={`form-group ${shakeInput ? 'shake-animation' : ''}`} style={{ marginTop: '10px' }}>
+                    <label style={{ fontWeight: 'bold' }}>שם פרטי (חובה):</label>
                     <input 
                       type="text" 
-                      placeholder="הקלד/י את השם שלך כאן..." 
+                      placeholder="הקלד/י את השם שלך" 
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
-                      required
                       style={{ 
-                        fontSize: '1.3rem', 
-                        padding: '12px', 
-                        border: '2px solid #ff9a9e', 
+                        fontSize: '1.2rem', 
+                        padding: '10px', 
                         borderRadius: '8px',
-                        width: '100%',
-                        boxSizing: 'border-box',
-                        textAlign: 'center',
-                        fontWeight: 'bold'
+                        border: shakeInput ? '2px solid red' : '1px solid #ccc'
                       }}
                     />
                   </div>
                   
-                  <button type="submit" disabled={cart.length === 0 || !customerName.trim()} className="btn-primary btn-submit">
+                  <button 
+                    type="button" 
+                    onClick={submitOrder} 
+                    className={`btn-primary btn-submit ${!customerName.trim() ? 'btn-gray' : ''}`}
+                  >
                     שלח הזמנה לשיראל!
                   </button>
                 </form>
