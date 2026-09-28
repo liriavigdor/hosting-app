@@ -247,3 +247,28 @@ body {
   border-color: #bbf7d0;
 }
 
+
+.btn-reload {
+  background: #fff;
+  border: 1px solid #ddd;
+  color: #2d3436;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.btn-reload:hover {
+  background: #f8f9fa;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.btn-reload:active {
+  transform: translateY(0);
+}
+
