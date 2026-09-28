@@ -3,25 +3,25 @@ import './index.css';
 
 // --- MOCK DATA ---
 const DEFAULT_MENU = [
-  { id: 1, name: 'אספרסו קצר', icon: '☕' },
-  { id: 2, name: 'אספרסו כפול קצר', icon: '☕' },
-  { id: 3, name: 'אספרסו ארוך', icon: '☕' },
-  { id: 4, name: 'אספרסו כפול ארוך', icon: '☕' },
-  { id: 5, name: 'אמריקנו חם', icon: '☕' },
-  { id: 6, name: 'אמריקנו קר', icon: '🧊' },
-  { id: 7, name: 'קפה קר', icon: '🧋' },
-  { id: 8, name: 'שוקו חם', icon: '🍫' },
-  { id: 9, name: 'שוקו קר', icon: '🧋' },
-  { id: 10, name: 'תה חם', icon: '🍵' },
-  { id: 11, name: 'ברד פסיפלורה', icon: '🍧' },
-  { id: 12, name: 'ברד פטל', icon: '🍧' },
-  { id: 13, name: 'ברד משמש', icon: '🍧' },
-  { id: 14, name: 'ברד אבטיח', icon: '🍉' },
-  { id: 15, name: 'אייס קפה', icon: '🥤' },
-  { id: 16, name: 'אייס וניל', icon: '🥤' },
-  { id: 17, name: 'גלידה', icon: '🍦' },
-  { id: 18, name: 'לימונדה', icon: '🍋' },
-  { id: 19, name: 'טוסט עם גבינה', icon: '🥪' }
+  { id: 1, name: 'אספרסו קצר', icon: '☕', category: 'קפה חם' },
+  { id: 2, name: 'אספרסו כפול קצר', icon: '☕', category: 'קפה חם' },
+  { id: 3, name: 'אספרסו ארוך', icon: '☕', category: 'קפה חם' },
+  { id: 4, name: 'אספרסו כפול ארוך', icon: '☕', category: 'קפה חם' },
+  { id: 5, name: 'אמריקנו חם', icon: '☕', category: 'קפה חם' },
+  { id: 6, name: 'אמריקנו קר', icon: '🧊', category: 'קפה קר' },
+  { id: 7, name: 'קפה קר', icon: '🧋', category: 'קפה קר' },
+  { id: 8, name: 'שוקו חם', icon: '🍫', category: 'קפה חם' },
+  { id: 9, name: 'שוקו קר', icon: '🧋', category: 'קפה קר' },
+  { id: 10, name: 'תה חם', icon: '🍵', category: 'קפה חם' },
+  { id: 11, name: 'ברד פסיפלורה', icon: '🍧', category: 'ברד' },
+  { id: 12, name: 'ברד פטל', icon: '🍧', category: 'ברד' },
+  { id: 13, name: 'ברד משמש', icon: '🍧', category: 'ברד' },
+  { id: 14, name: 'ברד אבטיח', icon: '🍉', category: 'ברד' },
+  { id: 15, name: 'אייס קפה', icon: '🥤', category: 'אייסים' },
+  { id: 16, name: 'אייס וניל', icon: '🥤', category: 'אייסים' },
+  { id: 17, name: 'גלידה', icon: '🍦', category: 'מתוקים' },
+  { id: 18, name: 'לימונדה', icon: '🍋', category: 'שתייה קרה' },
+  { id: 19, name: 'טוסט עם גבינה', icon: '🥪', category: 'אוכל' }
 ];
 
 export default function App() {
@@ -72,6 +72,7 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [customerName, setCustomerName] = useState('');
   const [milkType, setMilkType] = useState('רגיל'); // רגיל / סויה
+  const [selectedCategory, setSelectedCategory] = useState('הכל');
 
   const addToCart = (product) => {
     setCart([...cart, product]);
@@ -143,12 +144,20 @@ export default function App() {
       <div className="main-content">
         
         {view === 'customer' && (
-          <div className="customer-view glass-panel">
-            <h1 className="title">מה תרצו לשתות היום? ☕</h1>
-            <p className="subtitle">התפריט מעודכן להיום. בחרו פריטים והזמינו.</p>
+          <div className="customer-view">
+            <div className="customer-header glass-panel">
+              <h1 className="title">מה תרצו לשתות? ☕</h1>
+              
+              <div className="category-pills">
+                <button className={`pill ${selectedCategory === 'הכל' ? 'active' : ''}`} onClick={() => setSelectedCategory('הכל')}>הכל</button>
+                {Array.from(new Set(products.map(p => p.category || 'כללי'))).map(cat => (
+                  <button key={cat} className={`pill ${selectedCategory === cat ? 'active' : ''}`} onClick={() => setSelectedCategory(cat)}>{cat}</button>
+                ))}
+              </div>
+            </div>
 
             <div className="products-grid">
-              {products.map(product => (
+              {products.filter(p => selectedCategory === 'הכל' || (p.category || 'כללי') === selectedCategory).map(product => (
                 <div key={product.id} className="product-card" onClick={() => addToCart(product)}>
                   <span className="product-icon">{product.icon}</span>
                   <h3>{product.name}</h3>
@@ -156,11 +165,10 @@ export default function App() {
               ))}
             </div>
 
-            <div className="order-summary">
-              <h3>ההזמנה שלי ({cart.length} פריטים)</h3>
-              {cart.length === 0 ? (
-                <p style={{color: 'var(--text-muted)'}}>עדיין לא בחרת כלום...</p>
-              ) : (
+            {cart.length > 0 && (
+              <div className="sticky-cart glass-panel">
+                <div className="order-summary">
+                  <h3>ההזמנה שלי ({cart.length} פריטים)</h3>
                 <ul className="cart-list">
                   {cart.map((item, idx) => (
                     <li key={idx}>
@@ -199,11 +207,12 @@ export default function App() {
                   />
                 </div>
                 
-                <button type="submit" disabled={cart.length === 0 || !customerName.trim()} className="btn-primary btn-submit">
-                  שלח הזמנה לשיראל!
-                </button>
-              </form>
-            </div>
+                  <button type="submit" disabled={cart.length === 0 || !customerName.trim()} className="btn-primary btn-submit">
+                    שלח הזמנה לשיראל!
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         )}
 
@@ -279,6 +288,9 @@ export default function App() {
                       <option value="🍋">🍋 לימון</option>
                       <option value="🥪">🥪 אוכל</option>
                       <option value="🥐">🥐 מאפה</option>
+                    </select>
+                    <select name="category" required onChange={(e) => setNewProductName(newProductName + ' | ' + e.target.value)} style={{display: 'none'}}>
+                       {/* Simplified for pilot */}
                     </select>
                     <button type="submit" className="btn-primary">הוסף לתפריט</button>
                   </form>
