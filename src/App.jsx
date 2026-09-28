@@ -241,14 +241,26 @@ export default function App() {
                     </div>
                   )}
 
-                  <div className="form-group">
-                    <label>שם פרטי (כדי שנדע למי לקרוא):</label>
+                  <div className="form-group name-input-highlight" style={{ marginTop: '15px', background: '#fff0f0', padding: '15px', borderRadius: '10px', border: '2px dashed #ff9a9e' }}>
+                    <label style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#d32f2f', marginBottom: '8px', display: 'block' }}>
+                      איך קוראים לך? (חובה)
+                    </label>
                     <input 
                       type="text" 
-                      placeholder="למשל: דוד" 
+                      placeholder="הקלד/י את השם שלך כאן..." 
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       required
+                      style={{ 
+                        fontSize: '1.3rem', 
+                        padding: '12px', 
+                        border: '2px solid #ff9a9e', 
+                        borderRadius: '8px',
+                        width: '100%',
+                        boxSizing: 'border-box',
+                        textAlign: 'center',
+                        fontWeight: 'bold'
+                      }}
                     />
                   </div>
                   
