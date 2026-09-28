@@ -169,44 +169,44 @@ export default function App() {
               <div className="sticky-cart glass-panel">
                 <div className="order-summary">
                   <h3>ההזמנה שלי ({cart.length} פריטים)</h3>
-                <ul className="cart-list">
-                  {cart.map((item, idx) => (
-                    <li key={idx}>
-                      <span>{item.icon} {item.name}</span>
-                      <button className="btn-remove" onClick={() => removeFromCart(idx)}>❌</button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              
-              <form onSubmit={submitOrder} className="order-form-vertical">
-                {cart.some(item => 
-                  item.name.includes('אספרסו') || 
-                  item.name.includes('אמריקנו') || 
-                  item.name.includes('שוקו') || 
-                  (item.name.includes('קפה') && !item.name.includes('אייס'))
-                ) && (
-                  <div className="form-group">
-                    <label>סוג חלב (לקפה/שוקו):</label>
-                    <select value={milkType} onChange={(e) => setMilkType(e.target.value)}>
-                      <option value="רגיל">חלב רגיל</option>
-                      <option value="סויה">חלב סויה</option>
-                      <option value="ללא">ללא חלב</option>
-                    </select>
-                  </div>
-                )}
-
-                <div className="form-group">
-                  <label>שם פרטי (כדי שנדע למי לקרוא):</label>
-                  <input 
-                    type="text" 
-                    placeholder="למשל: דוד" 
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    required
-                  />
+                  <ul className="cart-list">
+                    {cart.map((item, idx) => (
+                      <li key={idx}>
+                        <span>{item.icon} {item.name}</span>
+                        <button className="btn-remove" onClick={() => removeFromCart(idx)}>❌</button>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                
+              
+                <form onSubmit={submitOrder} className="order-form-vertical">
+                  {cart.some(item => 
+                    item.name.includes('אספרסו') || 
+                    item.name.includes('אמריקנו') || 
+                    item.name.includes('שוקו') || 
+                    (item.name.includes('קפה') && !item.name.includes('אייס'))
+                  ) && (
+                    <div className="form-group">
+                      <label>סוג חלב (לקפה/שוקו):</label>
+                      <select value={milkType} onChange={(e) => setMilkType(e.target.value)}>
+                        <option value="רגיל">חלב רגיל</option>
+                        <option value="סויה">חלב סויה</option>
+                        <option value="ללא">ללא חלב</option>
+                      </select>
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label>שם פרטי (כדי שנדע למי לקרוא):</label>
+                    <input 
+                      type="text" 
+                      placeholder="למשל: דוד" 
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
                   <button type="submit" disabled={cart.length === 0 || !customerName.trim()} className="btn-primary btn-submit">
                     שלח הזמנה לשיראל!
                   </button>
