@@ -373,7 +373,24 @@ export default function App() {
                 </div>
 
                 <div className="current-menu-list">
-                  <h3>התפריט המוצג כרגע ללקוחות:</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3>התפריט המוצג כרגע ללקוחות:</h3>
+                    <button 
+                      className="btn-secondary" 
+                      onClick={async () => {
+                        if(window.confirm('זה יוסיף את כל מוצרי הבסיס למסד הנתונים. להמשיך?')) {
+                          for (const item of DEFAULT_MENU) {
+                            try {
+                              const { id, ...itemData } = item;
+                              await addDoc(collection(db, 'products'), itemData);
+                            } catch (e) { console.error(e) }
+                          }
+                        }
+                      }}
+                    >
+                      🔄 טען תפריט בסיסי
+                    </button>
+                  </div>
                   <div className="menu-items-table">
                     {products.map(product => (
                       <div key={product.id} className="menu-item-row" style={{ opacity: product.hidden ? 0.5 : 1 }}>
