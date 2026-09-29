@@ -141,7 +141,7 @@ export default function App() {
       let desc = item.product.name;
       const details = [];
       if (item.selectedOption) details.push(item.selectedOption);
-      if (item.selectedMilk && item.selectedMilk !== 'ללא חלב') details.push(item.selectedMilk);
+      if (item.selectedMilk) details.push(item.selectedMilk);
       
       if (details.length > 0) {
         return `${desc} (${details.join(', ')})`;
@@ -341,6 +341,12 @@ export default function App() {
                           <h2>{order.customerName}</h2>
                           <span className="order-time">{order.time}</span>
                         </div>
+                        
+                        {order.milk && order.milk !== 'ללא' && (
+                          <div className="order-milk-pref" style={{ background: 'rgba(255,200,200,0.4)', padding: '5px 10px', borderRadius: '8px', marginBottom: '10px', fontSize: '0.9rem', color: '#c0392b', fontWeight: '600' }}>
+                            חלב: {order.milk}
+                          </div>
+                        )}
 
                         <ul className="order-items">
                           {order.items.map((item, idx) => (
