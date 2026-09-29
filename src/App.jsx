@@ -258,10 +258,7 @@ export default function App() {
                   <ul className="cart-list">
                     {cart.map((item) => (
                       <li key={item.cartId} className="cart-item-card">
-                        <div className="cart-item-header">
-                          <span className="cart-item-name">{item.product.icon} {item.product.name}</span>
-                          <button className="btn-remove" onClick={() => removeFromCart(item.cartId)}>🗑️</button>
-                        </div>
+                        <div className="cart-item-name">{item.product.icon} {item.product.name}</div>
                         <div className="cart-item-options">
                           {item.product.options && (
                             <select 
@@ -286,6 +283,7 @@ export default function App() {
                             </select>
                           )}
                         </div>
+                        <button className="btn-remove" onClick={() => removeFromCart(item.cartId)}>🗑️</button>
                       </li>
                     ))}
                   </ul>
