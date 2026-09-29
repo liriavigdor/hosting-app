@@ -136,7 +136,7 @@ export default function App() {
       customerName,
       items: orderItems,
       status: 'pending',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', hour12: false }),
       timestamp: Date.now() // to sort orders
     };
 
