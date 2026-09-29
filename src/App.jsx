@@ -101,6 +101,7 @@ export default function App() {
   const [shakeInput, setShakeInput] = useState(false);
   const [milkSettings, setMilkSettings] = useState({ regular: true, soy: true });
   const [slushSettings, setSlushSettings] = useState({ passion: true, raspberry: true, apricot: true, watermelon: true });
+  const [isCartOpen, setIsCartOpen] = useState(true);
 
   const toggleMilkSetting = async (type) => {
     const newSettings = { ...milkSettings, [type]: !milkSettings[type] };
@@ -143,6 +144,7 @@ export default function App() {
       selectedMilk: defaultMilk
     };
     setCart([...cart, newItem]);
+    setIsCartOpen(true);
   };
 
   const updateCartItemOption = (cartId, newOption) => {
@@ -277,10 +279,25 @@ export default function App() {
               ))}
             </div>
 
-            {cart.length > 0 && (
+            {cart.length > 0 && !isCartOpen && (
+              <button 
+                className="floating-cart-btn" 
+                onClick={() => setIsCartOpen(true)}
+              >
+                🧾
+                <span className="cart-badge">{cart.length}</span>
+              </button>
+            )}
+
+            {cart.length > 0 && isCartOpen && (
               <div className="sticky-cart glass-panel">
                 <div className="order-summary">
-                  <h3>ההזמנה שלי ({cart.length} פריטים)</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <h3 style={{ margin: 0 }}>ההזמנה שלי ({cart.length} פריטים)</h3>
+                    <button onClick={() => setIsCartOpen(false)} className="btn-close-cart">
+                      🔽 צמצם
+                    </button>
+                  </div>
                   <ul className="cart-list">
                     {cart.map((item) => (
                       <li key={item.cartId} className="cart-item-card">
