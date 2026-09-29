@@ -62,9 +62,19 @@ export default function App() {
       }
     );
 
+    // 3. Listen to global milk settings
+    const unsubscribeSettings = onSnapshot(doc(db, 'settings', 'milk'), (docSnap) => {
+      if (docSnap.exists()) {
+        setMilkSettings(docSnap.data());
+      } else {
+        setDoc(doc(db, 'settings', 'milk'), { regular: true, soy: true });
+      }
+    });
+
     return () => {
       unsubscribeProducts();
       unsubscribeOrders();
+      unsubscribeSettings();
     };
   }, []);
 
@@ -78,6 +88,13 @@ export default function App() {
   const [customerName, setCustomerName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('הכל');
   const [shakeInput, setShakeInput] = useState(false);
+  const [milkSettings, setMilkSettings] = useState({ regular: true, soy: true });
+
+  const toggleMilkSetting = async (type) => {
+    const newSettings = { ...milkSettings, [type]: !milkSettings[type] };
+    setMilkSettings(newSettings); // optimistic UI
+    await setDoc(doc(db, 'settings', 'milk'), newSettings);
+  };
 
   const addToCart = (product) => {
     const isDrinkWithMilk = product.name.includes('אספרסו') || 
@@ -235,7 +252,7 @@ export default function App() {
                       <li key={item.cartId} className="cart-item-card">
                         <div className="cart-item-header">
                           <span className="cart-item-name">{item.product.icon} {item.product.name}</span>
-                          <button className="btn-remove" onClick={() => removeFromCart(item.cartId)}>❌</button>
+                          <button className="btn-remove" onClick={() => removeFromCart(item.cartId)}>🗑️ הסר</button>
                         </div>
                         <div className="cart-item-options">
                           {item.product.options && (
@@ -255,8 +272,8 @@ export default function App() {
                               value={item.selectedMilk} 
                               onChange={(e) => updateCartItemMilk(item.cartId, e.target.value)}
                             >
-                              <option value="חלב רגיל">חלב רגיל</option>
-                              <option value="חלב סויה">🥛 חלב סויה</option>
+                              {milkSettings.regular && <option value="חלב רגיל">חלב רגיל</option>}
+                              {milkSettings.soy && <option value="חלב סויה">🥛 חלב סויה</option>}
                               <option value="ללא חלב">ללא חלב</option>
                             </select>
                           )}
@@ -371,6 +388,30 @@ export default function App() {
                 </div>
 
                 <div className="current-menu-list">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                    <h3>סוגי חלב זמינים ללקוחות:</h3>
+                  </div>
+                  <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', background: 'rgba(255,255,255,0.7)', padding: '15px', borderRadius: '12px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={milkSettings.regular} 
+                        onChange={() => toggleMilkSetting('regular')} 
+                        style={{ width: '20px', height: '20px' }}
+                      />
+                      חלב רגיל
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={milkSettings.soy} 
+                        onChange={() => toggleMilkSetting('soy')} 
+                        style={{ width: '20px', height: '20px' }}
+                      />
+                      🥛 חלב סויה
+                    </label>
+                  </div>
+
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h3>התפריט המוצג כרגע ללקוחות:</h3>
                     <button 
