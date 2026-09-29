@@ -72,10 +72,20 @@ export default function App() {
       }
     });
 
+    // 4. Listen to global slush settings
+    const unsubscribeSlush = onSnapshot(doc(db, 'settings', 'slush'), (docSnap) => {
+      if (docSnap.exists()) {
+        setSlushSettings(docSnap.data());
+      } else {
+        setSlushSettings({ passion: true, raspberry: true, apricot: true, watermelon: true });
+      }
+    });
+
     return () => {
       unsubscribeProducts();
       unsubscribeOrders();
       unsubscribeSettings();
+      unsubscribeSlush();
     };
   }, []);
 
@@ -90,11 +100,18 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('הכל');
   const [shakeInput, setShakeInput] = useState(false);
   const [milkSettings, setMilkSettings] = useState({ regular: true, soy: true });
+  const [slushSettings, setSlushSettings] = useState({ passion: true, raspberry: true, apricot: true, watermelon: true });
 
   const toggleMilkSetting = async (type) => {
     const newSettings = { ...milkSettings, [type]: !milkSettings[type] };
     setMilkSettings(newSettings); // optimistic UI
     await setDoc(doc(db, 'settings', 'milk'), newSettings);
+  };
+
+  const toggleSlushSetting = async (type) => {
+    const newSettings = { ...slushSettings, [type]: !slushSettings[type] };
+    setSlushSettings(newSettings); // optimistic UI
+    await setDoc(doc(db, 'settings', 'slush'), newSettings);
   };
 
   const addToCart = (product) => {
@@ -110,10 +127,19 @@ export default function App() {
       else defaultMilk = 'ללא חלב';
     }
 
+    let defaultOption = product.options ? product.options[0] : null;
+    if (product.name === 'ברד') {
+      if (slushSettings && slushSettings.passion) defaultOption = 'פסיפלורה';
+      else if (slushSettings && slushSettings.raspberry) defaultOption = 'פטל';
+      else if (slushSettings && slushSettings.apricot) defaultOption = 'משמש';
+      else if (slushSettings && slushSettings.watermelon) defaultOption = 'אבטיח';
+      else defaultOption = '';
+    }
+
     const newItem = {
       cartId: Math.random().toString(36).substr(2, 9),
       product: product,
-      selectedOption: product.options ? product.options[0] : null,
+      selectedOption: defaultOption,
       selectedMilk: defaultMilk
     };
     setCart([...cart, newItem]);
@@ -266,9 +292,18 @@ export default function App() {
                               value={item.selectedOption} 
                               onChange={(e) => updateCartItemOption(item.cartId, e.target.value)}
                             >
-                              {item.product.options.map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))}
+                              {item.product.name === 'ברד' ? (
+                                <>
+                                  {slushSettings && slushSettings.passion && <option value="פסיפלורה">פסיפלורה</option>}
+                                  {slushSettings && slushSettings.raspberry && <option value="פטל">פטל</option>}
+                                  {slushSettings && slushSettings.apricot && <option value="משמש">משמש</option>}
+                                  {slushSettings && slushSettings.watermelon && <option value="אבטיח">אבטיח</option>}
+                                </>
+                              ) : (
+                                item.product.options.map(opt => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))
+                              )}
                             </select>
                           )}
                           {item.selectedMilk !== null && (
@@ -421,6 +456,28 @@ export default function App() {
                         style={{ width: '20px', height: '20px' }}
                       />
                       🥛 חלב סויה
+                    </label>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                    <h3>טעמי ברד זמינים ללקוחות:</h3>
+                  </div>
+                  <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', background: 'rgba(255,255,255,0.7)', padding: '15px', borderRadius: '12px', flexWrap: 'wrap' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                      <input type="checkbox" checked={slushSettings.passion} onChange={() => toggleSlushSetting('passion')} style={{ width: '20px', height: '20px' }} />
+                      פסיפלורה
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                      <input type="checkbox" checked={slushSettings.raspberry} onChange={() => toggleSlushSetting('raspberry')} style={{ width: '20px', height: '20px' }} />
+                      פטל
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                      <input type="checkbox" checked={slushSettings.apricot} onChange={() => toggleSlushSetting('apricot')} style={{ width: '20px', height: '20px' }} />
+                      משמש
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                      <input type="checkbox" checked={slushSettings.watermelon} onChange={() => toggleSlushSetting('watermelon')} style={{ width: '20px', height: '20px' }} />
+                      אבטיח
                     </label>
                   </div>
 
