@@ -377,13 +377,16 @@ export default function App() {
                     <button 
                       className="btn-reload" 
                       onClick={async () => {
-                        if(window.confirm('זה יוסיף את כל מוצרי הבסיס למסד הנתונים. להמשיך?')) {
+                        if(window.confirm('זה יוסיף את מוצרי הבסיס החסרים. להמשיך?')) {
                           for (const item of DEFAULT_MENU) {
-                            try {
-                              const { id, ...itemData } = item;
-                              await addDoc(collection(db, 'products'), itemData);
-                            } catch (e) { console.error(e) }
+                            if (!products.some(p => p.name === item.name)) {
+                              try {
+                                const { id, ...itemData } = item;
+                                await addDoc(collection(db, 'products'), itemData);
+                              } catch (e) { console.error(e) }
+                            }
                           }
+                          alert('תפריט בסיסי הושלם בהצלחה!');
                         }
                       }}
                     >
