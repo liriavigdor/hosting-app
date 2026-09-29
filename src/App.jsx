@@ -67,7 +67,7 @@ export default function App() {
       if (docSnap.exists()) {
         setMilkSettings(docSnap.data());
       } else {
-        setDoc(doc(db, 'settings', 'milk'), { regular: true, soy: true });
+        setMilkSettings({ regular: true, soy: true });
       }
     });
 
