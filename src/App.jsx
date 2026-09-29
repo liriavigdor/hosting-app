@@ -7,7 +7,7 @@ import './index.css';
 const DEFAULT_MENU = [
   { id: 1, name: 'אספרסו', icon: '☕', category: 'קפה חם', options: ['קצר', 'כפול קצר', 'ארוך', 'כפול ארוך'] },
   { id: 2, name: 'אמריקנו', icon: '☕', category: 'קפה חם', options: ['חם', 'קר'] },
-  { id: 3, name: 'קפה קר', icon: '🧊', category: 'קפה קר' },
+  { id: 3, name: 'קפה קר', icon: '🥤', category: 'קפה קר' },
   { id: 4, name: 'שוקו', icon: '🍫', category: 'שתייה חמה', options: ['חם', 'קר'] },
   { id: 5, name: 'תה חם', icon: '🍵', category: 'שתייה חמה' },
   { id: 6, name: 'ברד', icon: '🍧', category: 'ברד', options: ['פסיפלורה', 'פטל', 'משמש', 'אבטיח'] },
