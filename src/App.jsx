@@ -76,21 +76,30 @@ export default function App() {
   // Customer State
   const [cart, setCart] = useState([]);
   const [customerName, setCustomerName] = useState('');
-  const [milkType, setMilkType] = useState('רגיל'); // רגיל / סויה
   const [selectedCategory, setSelectedCategory] = useState('הכל');
   const [shakeInput, setShakeInput] = useState(false);
 
   const addToCart = (product) => {
+    const isDrinkWithMilk = product.name.includes('אספרסו') || 
+                            product.name.includes('אמריקנו') || 
+                            product.name.includes('שוקו') || 
+                            (product.name.includes('קפה') && !product.name.includes('אייס'));
+                            
     const newItem = {
       cartId: Math.random().toString(36).substr(2, 9),
       product: product,
-      selectedOption: product.options ? product.options[0] : null
+      selectedOption: product.options ? product.options[0] : null,
+      selectedMilk: isDrinkWithMilk ? 'חלב רגיל' : null
     };
     setCart([...cart, newItem]);
   };
 
   const updateCartItemOption = (cartId, newOption) => {
     setCart(cart.map(item => item.cartId === cartId ? { ...item, selectedOption: newOption } : item));
+  };
+
+  const updateCartItemMilk = (cartId, newMilk) => {
+    setCart(cart.map(item => item.cartId === cartId ? { ...item, selectedMilk: newMilk } : item));
   };
 
   const removeFromCart = (cartId) => {
@@ -111,25 +120,21 @@ export default function App() {
       }
       return;
     }
-    // Check if there's any coffee/drink in cart to mention the milk
     const orderItems = cart.map(item => {
-      return item.selectedOption ? `${item.product.name} (${item.selectedOption})` : item.product.name;
+      let desc = item.product.name;
+      const details = [];
+      if (item.selectedOption) details.push(item.selectedOption);
+      if (item.selectedMilk && item.selectedMilk !== 'ללא חלב') details.push(item.selectedMilk);
+      
+      if (details.length > 0) {
+        return `${desc} (${details.join(', ')})`;
+      }
+      return desc;
     });
-    
-    // Check if any item needs milk
-    const needsMilk = cart.some(item => 
-      item.product.name.includes('אספרסו') || 
-      item.product.name.includes('אמריקנו') || 
-      item.product.name.includes('שוקו') || 
-      (item.product.name.includes('קפה') && !item.product.name.includes('אייס'))
-    );
-
-    const finalMilkType = needsMilk ? milkType : 'ללא';
 
     const newOrder = {
       customerName,
       items: orderItems,
-      milk: finalMilkType,
       status: 'pending',
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       timestamp: Date.now() // to sort orders
@@ -139,7 +144,6 @@ export default function App() {
       await addDoc(collection(db, 'orders'), newOrder);
       setCart([]);
       setCustomerName('');
-      setMilkType('רגיל');
       alert('ההזמנה נשלחה בהצלחה לשיראל!');
     } catch (err) {
       console.error(err);
@@ -228,12 +232,15 @@ export default function App() {
                   <h3>ההזמנה שלי ({cart.length} פריטים)</h3>
                   <ul className="cart-list">
                     {cart.map((item) => (
-                      <li key={item.cartId}>
-                        <div className="cart-item-details">
+                      <li key={item.cartId} className="cart-item-card">
+                        <div className="cart-item-header">
                           <span className="cart-item-name">{item.product.icon} {item.product.name}</span>
+                          <button className="btn-remove" onClick={() => removeFromCart(item.cartId)}>❌</button>
+                        </div>
+                        <div className="cart-item-options">
                           {item.product.options && (
                             <select 
-                              className="cart-inline-select"
+                              className="cart-select"
                               value={item.selectedOption} 
                               onChange={(e) => updateCartItemOption(item.cartId, e.target.value)}
                             >
@@ -242,29 +249,25 @@ export default function App() {
                               ))}
                             </select>
                           )}
+                          {item.selectedMilk !== null && (
+                            <select 
+                              className="cart-select"
+                              value={item.selectedMilk} 
+                              onChange={(e) => updateCartItemMilk(item.cartId, e.target.value)}
+                            >
+                              <option value="חלב רגיל">חלב רגיל</option>
+                              <option value="חלב סויה">🥛 חלב סויה</option>
+                              <option value='חלב שיבולת שועל'>🌾 שיבולת שועל</option>
+                              <option value="ללא חלב">ללא חלב</option>
+                            </select>
+                          )}
                         </div>
-                        <button className="btn-remove" onClick={() => removeFromCart(item.cartId)}>❌</button>
                       </li>
                     ))}
                   </ul>
                 </div>
               
                 <form onSubmit={submitOrder} className="order-form-vertical">
-                  {cart.some(item => 
-                    item.product.name.includes('אספרסו') || 
-                    item.product.name.includes('אמריקנו') || 
-                    item.product.name.includes('שוקו') || 
-                    (item.product.name.includes('קפה') && !item.product.name.includes('אייס'))
-                  ) && (
-                    <div className="form-group">
-                      <label>סוג חלב (לקפה/שוקו):</label>
-                      <select value={milkType} onChange={(e) => setMilkType(e.target.value)}>
-                        <option value="רגיל">חלב רגיל</option>
-                        <option value="סויה">חלב סויה</option>
-                        <option value="ללא">ללא חלב</option>
-                      </select>
-                    </div>
-                  )}
 
                   <div className={`form-group ${shakeInput ? 'shake-animation' : ''}`} style={{ marginTop: '10px' }}>
                     <label style={{ fontWeight: 'bold' }}>שם פרטי (חובה):</label>
@@ -321,10 +324,6 @@ export default function App() {
                         <div className="order-header">
                           <h2>{order.customerName}</h2>
                           <span className="order-time">{order.time}</span>
-                        </div>
-                        
-                        <div className="order-milk-pref">
-                          {order.milk !== 'ללא' && <strong>חלב: {order.milk}</strong>}
                         </div>
 
                         <ul className="order-items">
