@@ -102,11 +102,18 @@ export default function App() {
                             product.name.includes('שוקו') || 
                             (product.name.includes('קפה') && !product.name.includes('אייס'));
                             
+    let defaultMilk = null;
+    if (isDrinkWithMilk) {
+      if (milkSettings && milkSettings.regular) defaultMilk = 'חלב רגיל';
+      else if (milkSettings && milkSettings.soy) defaultMilk = 'חלב סויה';
+      else defaultMilk = 'ללא חלב';
+    }
+
     const newItem = {
       cartId: Math.random().toString(36).substr(2, 9),
       product: product,
       selectedOption: product.options ? product.options[0] : null,
-      selectedMilk: isDrinkWithMilk ? 'חלב רגיל' : null
+      selectedMilk: defaultMilk
     };
     setCart([...cart, newItem]);
   };
