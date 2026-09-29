@@ -257,7 +257,6 @@ export default function App() {
                             >
                               <option value="חלב רגיל">חלב רגיל</option>
                               <option value="חלב סויה">🥛 חלב סויה</option>
-                              <option value='חלב שיבולת שועל'>🌾 שיבולת שועל</option>
                               <option value="ללא חלב">ללא חלב</option>
                             </select>
                           )}
