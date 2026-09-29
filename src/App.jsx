@@ -54,6 +54,7 @@ export default function App() {
       collection(db, 'orders'),
       (snapshot) => {
         const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        ordersData.sort((a, b) => a.timestamp - b.timestamp);
         setOrders(ordersData);
       },
       (error) => {
