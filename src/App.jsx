@@ -644,28 +644,31 @@ export default function App() {
                     {products.map(product => (
                       <div key={product.id} className="menu-item-row" style={{ opacity: product.hidden ? 0.5 : 1 }}>
                         <div className="menu-item-info">
-                          <select 
-                            value={product.icon} 
-                            onChange={async (e) => {
-                              try {
-                                await updateDoc(doc(db, 'products', product.id), { icon: e.target.value });
-                              } catch(err) { console.error('Error updating icon:', err); }
-                            }}
-                            title="לחץ לשינוי אייקון"
-                            style={{ 
-                              fontSize: '1.4rem', 
-                              border: 'none', 
-                              background: 'transparent', 
-                              cursor: 'pointer',
-                              outline: 'none',
-                              padding: '0',
-                              margin: '0',
-                              appearance: 'none',
-                              WebkitAppearance: 'none'
-                            }}
-                          >
-                            {EMOJI_OPTIONS}
-                          </select>
+                          <div style={{ position: 'relative', display: 'inline-block', width: '30px', height: '30px', textAlign: 'center', lineHeight: '30px' }}>
+                            <span style={{ fontSize: '1.2rem' }}>{product.icon}</span>
+                            <select 
+                              value={product.icon} 
+                              onChange={async (e) => {
+                                try {
+                                  await updateDoc(doc(db, 'products', product.id), { icon: e.target.value });
+                                } catch(err) { console.error('Error updating icon:', err); }
+                              }}
+                              title="לחץ לשינוי אייקון"
+                              style={{ 
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                opacity: 0,
+                                cursor: 'pointer',
+                                appearance: 'none',
+                                WebkitAppearance: 'none'
+                              }}
+                            >
+                              {EMOJI_OPTIONS}
+                            </select>
+                          </div>
                           <span className="product-name" style={{ textDecoration: product.hidden ? 'line-through' : 'none', marginRight: '8px' }}>
                             {product.name} {product.hidden && '(מוסתר)'}
                           </span>
