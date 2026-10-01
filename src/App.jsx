@@ -12,7 +12,7 @@ const DEFAULT_MENU = [
   { id: 5, name: 'תה חם', icon: '🍵', category: 'שתייה חמה' },
   { id: 6, name: 'ברד', icon: '🍧', category: 'ברד', options: ['פסיפלורה', 'פטל', 'משמש', 'אבטיח'] },
   { id: 7, name: 'אייס קפה', icon: '🥤', category: 'אייסים' },
-  { id: 8, name: 'אייס וניל', icon: '🥤', category: 'אייסים' },
+  { id: 8, name: 'אייס וניל', icon: '🧋', category: 'אייסים' },
   { id: 9, name: 'גלידה', icon: '🍦', category: 'מתוקים' },
   { id: 10, name: 'לימונדה', icon: '🍋', category: 'שתייה קרה' },
   { id: 11, name: 'טוסט עם גבינה', icon: '🥪', category: 'אוכל' },
