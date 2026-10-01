@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GiEspresso, GiCoffeeCup, GiCoffeeMug, GiBoba, GiTeapot, GiIceCreamCone, GiCroissant, GiSandwich, GiCupcake } from 'react-icons/gi';
-import { BsCupStraw } from 'react-icons/bs';
+import { GiEspresso, GiCoffeeCup, GiCoffeeMug, GiPaperCup, GiBubbleTea, GiTeapot, GiIceCreamCone, GiCroissant, GiSandwich, GiCupcake } from 'react-icons/gi';
 import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import './index.css';
@@ -42,8 +41,8 @@ export const renderIcon = (iconStr) => {
   if (iconStr === 'svg_espresso') return <GiEspresso />;
   if (iconStr === 'svg_coffee') return <GiCoffeeCup />;
   if (iconStr === 'svg_mug') return <GiCoffeeMug />;
-  if (iconStr === 'svg_cold') return <BsCupStraw />;
-  if (iconStr === 'svg_boba') return <GiBoba />;
+  if (iconStr === 'svg_cold') return <GiPaperCup />;
+  if (iconStr === 'svg_boba') return <GiBubbleTea />;
   if (iconStr === 'svg_teapot') return <GiTeapot />;
   if (iconStr === 'svg_icecream') return <GiIceCreamCone />;
   if (iconStr === 'svg_croissant') return <GiCroissant />;
