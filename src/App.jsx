@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GiEspresso, GiCoffeeCup, GiCoffeeMug, GiPaperCup, GiBubbleTea, GiTeapot, GiIceCreamCone, GiCroissant, GiSandwich, GiCupcake } from 'react-icons/gi';
 import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import './index.css';
@@ -29,43 +28,16 @@ const getMainCategory = (product) => {
   if (name.includes('חם') || cat.includes('חם')) return 'חם';
   if (name.includes('קר') || cat.includes('קר') || cat === 'אייסים' || cat === 'ברד') return 'קר';
   
-  if (['☕', '🍵', '🫖', 'svg_espresso', 'svg_coffee', 'svg_mug', 'svg_teapot'].includes(icon)) return 'חם';
-  if (['🥤', '🧋', '🧊', '🍧', '🥛', '🧃', '🧉', '🍹', '🍷', '🍻', '🍋', '🍉', '🍎', '🍊', '🍓', '🍒', '🍑', '🥭', '🍍', '🥥', 'svg_cold', 'svg_boba'].includes(icon)) return 'קר';
-  if (['🍦', '🍨', '🥪', '🥐', '🍫', '🍩', '🍪', '🍰', '🧁', '🥨', '🌯', '🥗', '🍬', '🍭', '🍯', 'svg_icecream', 'svg_croissant', 'svg_sandwich', 'svg_cake'].includes(icon)) return 'אוכל';
+  if (['☕', '🍵', '🫖'].includes(icon)) return 'חם';
+  if (['🥤', '🧋', '🧊', '🍧', '🥛', '🧃', '🧉', '🍹', '🍷', '🍻', '🍋', '🍉', '🍎', '🍊', '🍓', '🍒', '🍑', '🥭', '🍍', '🥥'].includes(icon)) return 'קר';
+  if (['🍦', '🍨', '🥪', '🥐', '🍫', '🍩', '🍪', '🍰', '🧁', '🥨', '🌯', '🥗', '🍬', '🍭', '🍯'].includes(icon)) return 'אוכל';
   
   return 'אוכל';
 };
 
-export const renderIcon = (iconStr) => {
-  if (!iconStr) return '☕';
-  if (iconStr === 'svg_espresso') return <GiEspresso />;
-  if (iconStr === 'svg_coffee') return <GiCoffeeCup />;
-  if (iconStr === 'svg_mug') return <GiCoffeeMug />;
-  if (iconStr === 'svg_cold') return <GiPaperCup />;
-  if (iconStr === 'svg_boba') return <GiBubbleTea />;
-  if (iconStr === 'svg_teapot') return <GiTeapot />;
-  if (iconStr === 'svg_icecream') return <GiIceCreamCone />;
-  if (iconStr === 'svg_croissant') return <GiCroissant />;
-  if (iconStr === 'svg_sandwich') return <GiSandwich />;
-  if (iconStr === 'svg_cake') return <GiCupcake />;
-  return iconStr;
-};
-
 const EMOJI_OPTIONS = (
   <>
-    <optgroup label="אייקונים מיוחדים (SVG)">
-      <option value="svg_espresso">☕ ספל אספרסו (SVG)</option>
-      <option value="svg_coffee">☕ כוס הפוך (SVG)</option>
-      <option value="svg_mug">☕ מאג קפה חם (SVG)</option>
-      <option value="svg_cold">🥤 קפה קר טייק אוויי (SVG)</option>
-      <option value="svg_boba">🧋 כוס שייק מיוחדת (SVG)</option>
-      <option value="svg_teapot">🫖 קנקן תה (SVG)</option>
-      <option value="svg_croissant">🥐 קרואסון (SVG)</option>
-      <option value="svg_cake">🧁 קאפקייק (SVG)</option>
-      <option value="svg_sandwich">🥪 טוסט/כריך (SVG)</option>
-      <option value="svg_icecream">🍦 גלידה (SVG)</option>
-    </optgroup>
-    <optgroup label="שתייה חמה (אימוג'י)">
+    <optgroup label="שתייה חמה">
       <option value="☕">☕ ספל קפה/שוקו</option>
       <option value="🍵">🍵 כוס תה</option>
       <option value="🫖">🫖 קנקן תה</option>
@@ -419,7 +391,7 @@ export default function App() {
                 .filter(p => selectedCategory === 'הכל' || getMainCategory(p) === selectedCategory)
                 .map(product => (
                 <div key={product.id} className="product-card" onClick={() => addToCart(product)}>
-                  <span className="product-icon">{renderIcon(product.icon)}</span>
+                  <span className="product-icon">{product.icon}</span>
                   <h3>{product.name}</h3>
                 </div>
               ))}
@@ -447,7 +419,7 @@ export default function App() {
                   <ul className="cart-list">
                     {cart.map((item) => (
                       <li key={item.cartId} className="cart-item-card">
-                        <div className="cart-item-name">{renderIcon(item.product.icon)} {item.product.name}</div>
+                        <div className="cart-item-name">{item.product.icon} {item.product.name}</div>
                         <div className="cart-item-options">
                           {item.product.options && (
                             <select 
@@ -673,7 +645,7 @@ export default function App() {
                       <div key={product.id} className="menu-item-row" style={{ opacity: product.hidden ? 0.5 : 1 }}>
                         <div className="menu-item-info">
                           <div style={{ position: 'relative', display: 'inline-block', width: '30px', height: '30px', textAlign: 'center', lineHeight: '30px' }}>
-                            <span style={{ fontSize: '1.2rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{renderIcon(product.icon)}</span>
+                            <span style={{ fontSize: '1.2rem' }}>{product.icon}</span>
                             <select 
                               value={product.icon} 
                               onChange={async (e) => {
