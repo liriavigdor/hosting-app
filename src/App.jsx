@@ -142,10 +142,15 @@ export default function App() {
   };
 
   const addToCart = (product) => {
-    const isDrinkWithMilk = product.name.includes('אספרסו') || 
-                            product.name.includes('אמריקנו') || 
-                            product.name.includes('שוקו') || 
-                            (product.name.includes('קפה') && !product.name.includes('אייס'));
+    const name = product.name || '';
+    const isDrinkWithMilk = name.includes('אספרסו') || 
+                            name.includes('אמריקנו') || 
+                            name.includes('שוקו') || 
+                            name.includes('קפוצ\'ינו') ||
+                            name.includes('קפוצינו') ||
+                            name.includes('הפוך') ||
+                            name.includes('לאטה') ||
+                            (name.includes('קפה') && !name.includes('אייס'));
                             
     let defaultMilk = null;
     if (isDrinkWithMilk) {
