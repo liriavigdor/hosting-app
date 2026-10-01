@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import './index.css';
@@ -26,6 +26,14 @@ export default function App() {
   // App State
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
+  
+  const initialOrdersLoaded = useRef(false);
+
+  useEffect(() => {
+    if (isShirel && 'Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+      Notification.requestPermission();
+    }
+  }, [isShirel]);
 
   // Fetch from Firebase in real-time
   useEffect(() => {
@@ -46,8 +54,33 @@ export default function App() {
     const unsubscribeOrders = onSnapshot(
       collection(db, 'orders'),
       (snapshot) => {
+        let hasNewOrder = false;
+        let newCustomerName = '';
+        
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            hasNewOrder = true;
+            newCustomerName = change.doc.data().customerName;
+          }
+        });
+
         const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         ordersData.sort((a, b) => a.timestamp - b.timestamp);
+        
+        if (initialOrdersLoaded.current && hasNewOrder && isShirel) {
+          // Play loud notification sound
+          const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+          audio.play().catch(e => console.log('Audio play failed:', e));
+          
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('הזמנה חדשה התקבלה! ☕', {
+              body: `הזמנה חדשה מאת ${newCustomerName}`,
+              icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135694.png'
+            });
+          }
+        }
+        initialOrdersLoaded.current = true;
+        
         setOrders(ordersData);
       },
       (error) => {
