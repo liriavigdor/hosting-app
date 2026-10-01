@@ -34,18 +34,11 @@ export default function App() {
       collection(db, 'products'),
       (snapshot) => {
         const prodsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (prodsData.length === 0) {
-          // If empty in DB (or just started), just use the local DEFAULT_MENU for now
-          // to avoid a blank screen while setting up Firebase
-          setProducts(DEFAULT_MENU);
-        } else {
-          setProducts(prodsData);
-        }
+        setProducts(prodsData);
       },
       (error) => {
         console.error("Firebase permissions/read error (products):", error);
-        // Fallback to local default if Firebase is not yet fully configured
-        setProducts(DEFAULT_MENU);
+        setProducts([]);
       }
     );
 
