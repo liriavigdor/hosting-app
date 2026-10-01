@@ -8,26 +8,29 @@ const DEFAULT_MENU = [
   { id: 1, name: 'אספרסו', icon: '☕', category: 'קפה חם', options: ['קצר', 'כפול קצר', 'ארוך', 'כפול ארוך'] },
   { id: 2, name: 'אמריקנו', icon: '☕', category: 'קפה חם', options: ['חם', 'קר'] },
   { id: 3, name: 'קפה קר', icon: '🥤', category: 'קפה קר' },
-  { id: 4, name: 'שוקו', icon: '🍫', category: 'שתייה חמה', options: ['חם', 'קר'] },
+  { id: 4, name: 'שוקו חם', icon: '🍫', category: 'שתייה חמה' },
   { id: 5, name: 'תה חם', icon: '🍵', category: 'שתייה חמה' },
   { id: 6, name: 'ברד', icon: '🍧', category: 'ברד', options: ['פסיפלורה', 'פטל', 'משמש', 'אבטיח'] },
   { id: 7, name: 'אייס קפה', icon: '🥤', category: 'אייסים' },
   { id: 8, name: 'אייס וניל', icon: '🥤', category: 'אייסים' },
   { id: 9, name: 'גלידה', icon: '🍦', category: 'מתוקים' },
   { id: 10, name: 'לימונדה', icon: '🍋', category: 'שתייה קרה' },
-  { id: 11, name: 'טוסט עם גבינה', icon: '🥪', category: 'אוכל' }
+  { id: 11, name: 'טוסט עם גבינה', icon: '🥪', category: 'אוכל' },
+  { id: 12, name: 'שוקו קר', icon: '🍫', category: 'שתייה קרה' }
 ];
 
 // --- HELPER FUNCTIONS ---
 const getMainCategory = (product) => {
   const icon = product.icon || '';
+  const name = product.name || '';
+  const cat = product.category || '';
+  
+  if (name.includes('חם') || cat.includes('חם')) return 'חם';
+  if (name.includes('קר') || cat.includes('קר') || cat === 'אייסים' || cat === 'ברד') return 'קר';
+  
   if (['☕', '🍵'].includes(icon)) return 'חם';
   if (['🥤', '🧋', '🧊', '🍧', '🍋', '🍉'].includes(icon)) return 'קר';
   if (['🍦', '🥪', '🥐', '🍫'].includes(icon)) return 'אוכל';
-  
-  const cat = product.category || '';
-  if (cat.includes('חם')) return 'חם';
-  if (cat.includes('קר') || cat === 'אייסים' || cat === 'ברד') return 'קר';
   
   return 'אוכל';
 };
