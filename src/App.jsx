@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GiEspresso, GiCoffeeCup, GiCoffeeMug, GiBoba, GiTeapot, GiIceCreamCone, GiCroissant, GiSandwich, GiCupcake } from 'react-icons/gi';
+import { GiCoffeeCup, GiCoffeeMug, GiBoba, GiTeapot, GiIceCreamCone, GiCroissant, GiSandwich, GiCupcake } from 'react-icons/gi';
 import { BsCupStraw } from 'react-icons/bs';
+import { MdCoffee } from 'react-icons/md';
 import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import './index.css';
@@ -39,7 +40,7 @@ const getMainCategory = (product) => {
 
 export const renderIcon = (iconStr) => {
   if (!iconStr) return '☕';
-  if (iconStr === 'svg_espresso') return <GiEspresso />;
+  if (iconStr === 'svg_espresso') return <MdCoffee />;
   if (iconStr === 'svg_coffee') return <GiCoffeeCup />;
   if (iconStr === 'svg_mug') return <GiCoffeeMug />;
   if (iconStr === 'svg_cold') return <BsCupStraw />;
