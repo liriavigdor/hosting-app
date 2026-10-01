@@ -20,6 +20,22 @@ const DEFAULT_MENU = [
 ];
 
 // --- HELPER FUNCTIONS ---
+const getIcon = (iconStr) => {
+  const map = {
+    'svg_espresso': '☕',
+    'svg_coffee': '☕',
+    'svg_mug': '☕',
+    'svg_cold': '🥤',
+    'svg_boba': '🧋',
+    'svg_teapot': '🫖',
+    'svg_croissant': '🥐',
+    'svg_cake': '🧁',
+    'svg_sandwich': '🥪',
+    'svg_icecream': '🍦'
+  };
+  return map[iconStr] || iconStr;
+};
+
 const getMainCategory = (product) => {
   const icon = product.icon || '';
   const name = product.name || '';
@@ -391,7 +407,7 @@ export default function App() {
                 .filter(p => selectedCategory === 'הכל' || getMainCategory(p) === selectedCategory)
                 .map(product => (
                 <div key={product.id} className="product-card" onClick={() => addToCart(product)}>
-                  <span className="product-icon">{product.icon}</span>
+                  <span className="product-icon">{getIcon(product.icon)}</span>
                   <h3>{product.name}</h3>
                 </div>
               ))}
@@ -419,7 +435,7 @@ export default function App() {
                   <ul className="cart-list">
                     {cart.map((item) => (
                       <li key={item.cartId} className="cart-item-card">
-                        <div className="cart-item-name">{item.product.icon} {item.product.name}</div>
+                        <div className="cart-item-name">{getIcon(item.product.icon)} {item.product.name}</div>
                         <div className="cart-item-options">
                           {item.product.options && (
                             <select 
@@ -645,9 +661,9 @@ export default function App() {
                       <div key={product.id} className="menu-item-row" style={{ opacity: product.hidden ? 0.5 : 1 }}>
                         <div className="menu-item-info">
                           <div style={{ position: 'relative', display: 'inline-block', width: '30px', height: '30px', textAlign: 'center', lineHeight: '30px' }}>
-                            <span style={{ fontSize: '1.2rem' }}>{product.icon}</span>
+                            <span style={{ fontSize: '1.2rem' }}>{getIcon(product.icon)}</span>
                             <select 
-                              value={product.icon} 
+                              value={getIcon(product.icon)} 
                               onChange={async (e) => {
                                 try {
                                   await updateDoc(doc(db, 'products', product.id), { icon: e.target.value });
