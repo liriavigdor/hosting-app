@@ -59,6 +59,14 @@ export default function App() {
       collection(db, 'products'),
       (snapshot) => {
         const prodsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Auto-cleanup old "שוקו" product
+        prodsData.forEach(p => {
+          if (p.name === 'שוקו') {
+            deleteDoc(doc(db, 'products', p.id)).catch(e => console.error(e));
+          }
+        });
+
         setProducts(prodsData);
       },
       (error) => {
