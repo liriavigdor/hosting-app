@@ -28,9 +28,9 @@ const getMainCategory = (product) => {
   if (name.includes('חם') || cat.includes('חם')) return 'חם';
   if (name.includes('קר') || cat.includes('קר') || cat === 'אייסים' || cat === 'ברד') return 'קר';
   
-  if (['☕', '🍵'].includes(icon)) return 'חם';
-  if (['🥤', '🧋', '🧊', '🍧', '🍋', '🍉'].includes(icon)) return 'קר';
-  if (['🍦', '🥪', '🥐', '🍫'].includes(icon)) return 'אוכל';
+  if (['☕', '🍵', '🫖'].includes(icon)) return 'חם';
+  if (['🥤', '🧋', '🧊', '🍧', '🥛', '🧃', '🧉', '🍹', '🍷', '🍻', '🍋', '🍉', '🍎', '🍊', '🍓', '🍒', '🍑', '🥭', '🍍', '🥥'].includes(icon)) return 'קר';
+  if (['🍦', '🍨', '🥪', '🥐', '🍫', '🍩', '🍪', '🍰', '🧁', '🥨', '🌯', '🥗', '🍬', '🍭', '🍯'].includes(icon)) return 'אוכל';
   
   return 'אוכל';
 };
@@ -501,18 +501,52 @@ export default function App() {
                       required
                     />
                     <select value={newProductIcon} onChange={(e) => setNewProductIcon(e.target.value)}>
-                      <option value="☕">☕ קפה</option>
-                      <option value="🍵">🍵 תה</option>
-                      <option value="🥤">🥤 קר</option>
-                      <option value="🧋">🧋 מיוחד</option>
-                      <option value="🧊">🧊 קרח</option>
-                      <option value="🍫">🍫 שוקולד</option>
-                      <option value="🍧">🍧 ברד</option>
-                      <option value="🍦">🍦 גלידה</option>
-                      <option value="🍉">🍉 פרי</option>
-                      <option value="🍋">🍋 לימון</option>
-                      <option value="🥪">🥪 אוכל</option>
-                      <option value="🥐">🥐 מאפה</option>
+                      <optgroup label="שתייה חמה">
+                        <option value="☕">☕ ספל קפה/שוקו</option>
+                        <option value="🍵">🍵 כוס תה</option>
+                        <option value="🫖">🫖 קנקן תה</option>
+                      </optgroup>
+                      <optgroup label="שתייה קרה">
+                        <option value="🥤">🥤 כוס עם קש (קפה קר/קולה)</option>
+                        <option value="🧋">🧋 בובה / שייק</option>
+                        <option value="🧊">🧊 קוביות קרח</option>
+                        <option value="🍧">🍧 ברד</option>
+                        <option value="🥛">🥛 כוס חלב</option>
+                        <option value="🧃">🧃 מיץ טרופית</option>
+                        <option value="🧉">🧉 מאטה / תה קר</option>
+                        <option value="🍹">🍹 קוקטייל פירות</option>
+                      </optgroup>
+                      <optgroup label="מאפים ומתוקים">
+                        <option value="🥐">🥐 קרואסון</option>
+                        <option value="🍩">🍩 דונאט</option>
+                        <option value="🍪">🍪 עוגייה</option>
+                        <option value="🍰">🍰 פרוסת עוגה</option>
+                        <option value="🧁">🧁 קאפקייק</option>
+                        <option value="🍫">🍫 שוקולד</option>
+                        <option value="🍬">🍬 סוכריה</option>
+                        <option value="🍭">🍭 סוכריה על מקל</option>
+                        <option value="🍯">🍯 דבש / סילאן</option>
+                      </optgroup>
+                      <optgroup label="אוכל">
+                        <option value="🥪">🥪 כריך / טוסט</option>
+                        <option value="🥨">🥨 בייגלה</option>
+                        <option value="🌯">🌯 בוריטו / טורטיה</option>
+                        <option value="🥗">🥗 סלט</option>
+                        <option value="🍦">🍦 גלידה אמריקאית</option>
+                        <option value="🍨">🍨 כדור גלידה</option>
+                      </optgroup>
+                      <optgroup label="פירות וטעמים">
+                        <option value="🍋">🍋 לימון</option>
+                        <option value="🍉">🍉 אבטיח</option>
+                        <option value="🍓">🍓 תות</option>
+                        <option value="🍒">🍒 דובדבן</option>
+                        <option value="🍑">🍑 אפרסק</option>
+                        <option value="🥭">🥭 מנגו</option>
+                        <option value="🍍">🍍 אננס</option>
+                        <option value="🥥">🥥 קוקוס</option>
+                        <option value="🍎">🍎 תפוח</option>
+                        <option value="🍊">🍊 תפוז</option>
+                      </optgroup>
                     </select>
                     <button type="submit" className="btn-primary">הוסף לתפריט</button>
                   </form>
