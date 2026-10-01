@@ -18,6 +18,20 @@ const DEFAULT_MENU = [
   { id: 11, name: 'טוסט עם גבינה', icon: '🥪', category: 'אוכל' }
 ];
 
+// --- HELPER FUNCTIONS ---
+const getMainCategory = (product) => {
+  const icon = product.icon || '';
+  if (['☕', '🍵'].includes(icon)) return 'חם';
+  if (['🥤', '🧋', '🧊', '🍧', '🍋', '🍉'].includes(icon)) return 'קר';
+  if (['🍦', '🥪', '🥐', '🍫'].includes(icon)) return 'אוכל';
+  
+  const cat = product.category || '';
+  if (cat.includes('חם')) return 'חם';
+  if (cat.includes('קר') || cat === 'אייסים' || cat === 'ברד') return 'קר';
+  
+  return 'אוכל';
+};
+
 export default function App() {
   // Use URL parameter to determine view. E.g. /?role=shirel
   const isShirel = window.location.search.includes('shirel');
@@ -303,16 +317,16 @@ export default function App() {
               
               <div className="category-pills">
                 <button className={`pill ${selectedCategory === 'הכל' ? 'active' : ''}`} onClick={() => setSelectedCategory('הכל')}>הכל</button>
-                {Array.from(new Set(products.map(p => p.category || 'כללי'))).map(cat => (
-                  <button key={cat} className={`pill ${selectedCategory === cat ? 'active' : ''}`} onClick={() => setSelectedCategory(cat)}>{cat}</button>
-                ))}
+                <button className={`pill ${selectedCategory === 'חם' ? 'active' : ''}`} onClick={() => setSelectedCategory('חם')}>🔥 חם</button>
+                <button className={`pill ${selectedCategory === 'קר' ? 'active' : ''}`} onClick={() => setSelectedCategory('קר')}>🧊 קר</button>
+                <button className={`pill ${selectedCategory === 'אוכל' ? 'active' : ''}`} onClick={() => setSelectedCategory('אוכל')}>🥪 אוכל</button>
               </div>
             </div>
 
             <div className="products-grid">
               {products
                 .filter(p => !p.hidden)
-                .filter(p => selectedCategory === 'הכל' || (p.category || 'כללי') === selectedCategory)
+                .filter(p => selectedCategory === 'הכל' || getMainCategory(p) === selectedCategory)
                 .map(product => (
                 <div key={product.id} className="product-card" onClick={() => addToCart(product)}>
                   <span className="product-icon">{product.icon}</span>
