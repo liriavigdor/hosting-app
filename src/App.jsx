@@ -504,11 +504,14 @@ export default function App() {
                       className="btn-reload" 
                       onClick={async () => {
                         if(window.confirm('זה יוסיף את מוצרי הבסיס החסרים. להמשיך?')) {
+                          // We can just use the products state but keep track of newly added names in a local variable.
+                          const currentNames = new Set(products.map(p => p.name));
                           for (const item of DEFAULT_MENU) {
-                            if (!products.some(p => p.name === item.name)) {
+                            if (!currentNames.has(item.name)) {
                               try {
                                 const { id, ...itemData } = item;
                                 await addDoc(collection(db, 'products'), itemData);
+                                currentNames.add(item.name); // Track it so we don't add it again if the loop runs or button is double clicked
                               } catch (e) { console.error(e) }
                             }
                           }
