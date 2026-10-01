@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import './index.css';
 
@@ -217,6 +217,17 @@ export default function App() {
     try {
       await addDoc(collection(db, 'products'), newProduct);
       setNewProductName('');
+
+      // Save to custom defaults in Firebase so "Load Default Menu" remembers it
+      const customMenuRef = doc(db, 'settings', 'customMenu');
+      const docSnap = await getDoc(customMenuRef);
+      let customItems = [];
+      if (docSnap.exists()) {
+        customItems = docSnap.data().items || [];
+      }
+      customItems.push(newProduct);
+      await setDoc(customMenuRef, { items: customItems });
+
     } catch (err) {
       console.error(err);
     }
@@ -496,15 +507,26 @@ export default function App() {
                     <button 
                       className="btn-reload" 
                       onClick={async () => {
-                        if(window.confirm('זה יוסיף את מוצרי הבסיס החסרים. להמשיך?')) {
-                          // We can just use the products state but keep track of newly added names in a local variable.
+                        if(window.confirm('זה יוסיף את מוצרי הבסיס החסרים (כולל אלה שהוספת בעבר). להמשיך?')) {
+                          // Fetch any custom products Shirel added previously
+                          let customItems = [];
+                          try {
+                            const customMenuRef = doc(db, 'settings', 'customMenu');
+                            const docSnap = await getDoc(customMenuRef);
+                            if (docSnap.exists()) {
+                              customItems = docSnap.data().items || [];
+                            }
+                          } catch (e) { console.error(e) }
+
+                          const fullMenu = [...DEFAULT_MENU, ...customItems];
                           const currentNames = new Set(products.map(p => p.name));
-                          for (const item of DEFAULT_MENU) {
+                          
+                          for (const item of fullMenu) {
                             if (!currentNames.has(item.name)) {
                               try {
                                 const { id, ...itemData } = item;
                                 await addDoc(collection(db, 'products'), itemData);
-                                currentNames.add(item.name); // Track it so we don't add it again if the loop runs or button is double clicked
+                                currentNames.add(item.name);
                               } catch (e) { console.error(e) }
                             }
                           }
