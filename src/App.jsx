@@ -161,7 +161,7 @@ export default function App() {
         
         if (initialOrdersLoaded.current && hasNewOrder && isShirel) {
           // Play loud notification sound
-          const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+          const audio = new Audio('/new-order.mp3');
           audio.play().catch(e => console.log('Audio play failed:', e));
           
           try {
