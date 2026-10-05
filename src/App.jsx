@@ -165,10 +165,14 @@ export default function App() {
           audio.play().catch(e => console.log('Audio play failed:', e));
           
           if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('הזמנה חדשה התקבלה! ☕', {
-              body: `הזמנה חדשה מאת ${newCustomerName}`,
-              icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135694.png'
-            });
+            try {
+              new Notification('הזמנה חדשה התקבלה! ☕', {
+                body: `הזמנה חדשה מאת ${newCustomerName}`,
+                icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135694.png'
+              });
+            } catch (err) {
+              console.log('Notification API failed (expected on some mobile/kiosk browsers):', err);
+            }
           }
         }
         initialOrdersLoaded.current = true;
