@@ -164,15 +164,15 @@ export default function App() {
           const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
           audio.play().catch(e => console.log('Audio play failed:', e));
           
-          if ('Notification' in window && Notification.permission === 'granted') {
-            try {
+          try {
+            if ('Notification' in window && window.Notification && Notification.permission === 'granted') {
               new Notification('הזמנה חדשה התקבלה! ☕', {
                 body: `הזמנה חדשה מאת ${newCustomerName}`,
                 icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135694.png'
               });
-            } catch (err) {
-              console.log('Notification API failed (expected on some mobile/kiosk browsers):', err);
             }
+          } catch (err) {
+            console.log('Notification API check failed (expected on some mobile/kiosk browsers):', err);
           }
         }
         initialOrdersLoaded.current = true;
