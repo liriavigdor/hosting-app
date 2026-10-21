@@ -316,7 +316,7 @@ export default function App() {
   }, [isShirel]);
 
   // Barista View State
-  const [baristaTab, setBaristaTab] = useState('drinks'); // 'drinks', 'food', 'all', 'menu'
+  const [baristaTab, setBaristaTab] = useState('orders'); // 'orders', 'menu'
   const [newProductName, setNewProductName] = useState('');
   const [newProductIcon, setNewProductIcon] = useState('☕');
 
@@ -325,7 +325,7 @@ export default function App() {
     return orders.map(processOrder);
   }, [orders]);
 
-  // Filtered orders for display
+  // Filtered orders for display in the two columns
   const pendingDrinksOrders = useMemo(() => {
     return processedOrders.filter(o => !o.drinksCompleted && o.hasDrinks);
   }, [processedOrders]);
@@ -333,16 +333,6 @@ export default function App() {
   const pendingFoodOrders = useMemo(() => {
     return processedOrders.filter(o => !o.foodCompleted && o.hasFood);
   }, [processedOrders]);
-
-  const activeOrders = useMemo(() => {
-    return processedOrders.filter(o => !o.isFullyCompleted);
-  }, [processedOrders]);
-
-  const displayedOrders = useMemo(() => {
-    if (baristaTab === 'drinks') return pendingDrinksOrders;
-    if (baristaTab === 'food') return pendingFoodOrders;
-    return activeOrders;
-  }, [baristaTab, pendingDrinksOrders, pendingFoodOrders, activeOrders]);
 
   // Customer State
   const [cart, setCart] = useState([]);
@@ -505,7 +495,7 @@ export default function App() {
     }
   };
 
-  const completeOrder = async (orderId) => {
+  const _completeOrder = async (orderId) => {
     try {
       await deleteDoc(doc(db, 'orders', orderId));
     } catch (err) {
@@ -694,67 +684,107 @@ export default function App() {
             <h1 className="title">העמדה של שיראל ✨</h1>
             
             <div className="barista-tabs">
-              <button className={baristaTab === 'drinks' ? 'active' : ''} onClick={() => setBaristaTab('drinks')}>
-                ☕ שתייה ({pendingDrinksOrders.length})
+              <button 
+                className={baristaTab === 'orders' ? 'active' : ''} 
+                onClick={() => setBaristaTab('orders')}
+              >
+                📋 לוח הזמנות ({pendingDrinksOrders.length + pendingFoodOrders.length})
               </button>
-              <button className={baristaTab === 'food' ? 'active' : ''} onClick={() => setBaristaTab('food')}>
-                🥪 אוכל ({pendingFoodOrders.length})
-              </button>
-              <button className={baristaTab === 'all' ? 'active' : ''} onClick={() => setBaristaTab('all')}>
-                📋 הכל ({activeOrders.length})
-              </button>
-              <button className={baristaTab === 'menu' ? 'active' : ''} onClick={() => setBaristaTab('menu')}>
-                ניהול תפריט
+              <button 
+                className={baristaTab === 'menu' ? 'active' : ''} 
+                onClick={() => setBaristaTab('menu')}
+              >
+                ⚙️ ניהול תפריט
               </button>
             </div>
 
-            {baristaTab !== 'menu' && (
-              <div className="tab-content">
-                {displayedOrders.length === 0 ? (
-                  <div className="empty-state">
-                    <p>
-                      {baristaTab === 'drinks' && 'אין משקאות להכנה כרגע! 🎉'}
-                      {baristaTab === 'food' && 'אין הזמנות אוכל פתוחות כרגע! 🎉'}
-                      {baristaTab === 'all' && 'אין הזמנות כרגע. אפשר לשתות קפה בשקט! 🎉'}
-                    </p>
+            {baristaTab === 'orders' && (
+              <div className="barista-two-columns" style={{ display: 'flex', flexDirection: 'row', gap: '20px', width: '100%', alignItems: 'flex-start' }}>
+                {/* עמודת שתייה */}
+                <div className="barista-column drinks-col" style={{ flex: '1 1 0px', width: '50%', minWidth: 0 }}>
+                  <div className="column-header-bar">
+                    <div className="column-header-title">
+                      <span>☕</span>
+                      <span>הזמנות שתייה</span>
+                    </div>
+                    <span className="column-header-count drinks-count-badge">
+                      {pendingDrinksOrders.length}
+                    </span>
                   </div>
-                ) : (
-                  <div className="orders-list">
-                    {displayedOrders.map(order => {
-                      const itemsToShow = baristaTab === 'drinks' 
-                        ? order.drinkItems 
-                        : baristaTab === 'food' 
-                          ? order.foodItems 
-                          : order.parsedItems;
 
-                      return (
-                        <div key={order.id} className="order-card">
+                  {pendingDrinksOrders.length === 0 ? (
+                    <div className="empty-state">
+                      <p>אין משקאות להכנה כרגע! 🎉</p>
+                    </div>
+                  ) : (
+                    <div className="column-orders-list">
+                      {pendingDrinksOrders.map(order => (
+                        <div key={order.id} className="order-card order-card-drinks">
                           <div className="order-header">
                             <h2>{order.customerName}</h2>
                             <span className="order-time">{order.time}</span>
                           </div>
 
                           <ul className="order-items">
-                            {itemsToShow.map((item, idx) => (
+                            {order.drinkItems.map((item, idx) => (
                               <li key={idx}>🔸 {item.text || item.name}</li>
                             ))}
                           </ul>
 
                           <button 
                             className="btn-success" 
-                            onClick={() => {
-                              if (baristaTab === 'drinks') completeDrinks(order);
-                              else if (baristaTab === 'food') completeFood(order);
-                              else completeOrder(order.id);
-                            }}
+                            onClick={() => completeDrinks(order)}
                           >
                             סיימתי! ✅
                           </button>
                         </div>
-                      );
-                    })}
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* עמודת מזון */}
+                <div className="barista-column food-col" style={{ flex: '1 1 0px', width: '50%', minWidth: 0 }}>
+                  <div className="column-header-bar">
+                    <div className="column-header-title">
+                      <span>🥪</span>
+                      <span>הזמנות מזון</span>
+                    </div>
+                    <span className="column-header-count food-count-badge">
+                      {pendingFoodOrders.length}
+                    </span>
                   </div>
-                )}
+
+                  {pendingFoodOrders.length === 0 ? (
+                    <div className="empty-state">
+                      <p>אין הזמנות מזון להכנה כרגע! 🎉</p>
+                    </div>
+                  ) : (
+                    <div className="column-orders-list">
+                      {pendingFoodOrders.map(order => (
+                        <div key={order.id} className="order-card order-card-food">
+                          <div className="order-header">
+                            <h2>{order.customerName}</h2>
+                            <span className="order-time">{order.time}</span>
+                          </div>
+
+                          <ul className="order-items">
+                            {order.foodItems.map((item, idx) => (
+                              <li key={idx}>🔸 {item.text || item.name}</li>
+                            ))}
+                          </ul>
+
+                          <button 
+                            className="btn-success" 
+                            onClick={() => completeFood(order)}
+                          >
+                            סיימתי! ✅
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
