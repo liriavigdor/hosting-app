@@ -334,6 +334,49 @@ export default function App() {
     return processedOrders.filter(o => !o.foodCompleted && o.hasFood);
   }, [processedOrders]);
 
+  // Aggregate coffee & drinks summary for the third column
+  const coffeeSummary = useMemo(() => {
+    const summary = {};
+
+    pendingDrinksOrders.forEach(order => {
+      order.drinkItems.forEach(item => {
+        const name = item.name;
+        if (!summary[name]) {
+          summary[name] = {
+            name,
+            icon: item.icon || '☕',
+            totalCount: 0,
+            milkGroups: {}
+          };
+        }
+
+        summary[name].totalCount += 1;
+
+        let groupKey = item.milk;
+        if (!groupKey) {
+          groupKey = item.option ? item.option : 'רגיל / ללא חלב';
+        }
+
+        if (!summary[name].milkGroups[groupKey]) {
+          summary[name].milkGroups[groupKey] = [];
+        }
+
+        summary[name].milkGroups[groupKey].push({
+          customerName: order.customerName,
+          option: item.option,
+          milk: item.milk,
+          orderTime: order.time
+        });
+      });
+    });
+
+    return Object.values(summary);
+  }, [pendingDrinksOrders]);
+
+  const totalDrinksToPrepare = useMemo(() => {
+    return coffeeSummary.reduce((sum, item) => sum + item.totalCount, 0);
+  }, [coffeeSummary]);
+
   // Customer State
   const [cart, setCart] = useState([]);
   const [customerName, setCustomerName] = useState('');
@@ -699,9 +742,9 @@ export default function App() {
             </div>
 
             {baristaTab === 'orders' && (
-              <div className="barista-two-columns" style={{ display: 'flex', flexDirection: 'row', gap: '20px', width: '100%', alignItems: 'flex-start' }}>
-                {/* עמודת שתייה */}
-                <div className="barista-column drinks-col" style={{ flex: '1 1 0px', width: '50%', minWidth: 0 }}>
+              <div className="barista-parallel-columns" style={{ display: 'flex', flexDirection: 'row', gap: '12px', width: '100%', alignItems: 'flex-start' }}>
+                {/* עמודה 1: הזמנות שתייה */}
+                <div className="barista-column drinks-col" style={{ flex: '1 1 0px', minWidth: 0 }}>
                   <div className="column-header-bar">
                     <div className="column-header-title">
                       <span>☕</span>
@@ -714,7 +757,7 @@ export default function App() {
 
                   {pendingDrinksOrders.length === 0 ? (
                     <div className="empty-state">
-                      <p>אין משקאות להכנה כרגע! 🎉</p>
+                      <p>אין שתייה להכנה כרגע! 🎉</p>
                     </div>
                   ) : (
                     <div className="column-orders-list">
@@ -743,8 +786,8 @@ export default function App() {
                   )}
                 </div>
 
-                {/* עמודת מזון */}
-                <div className="barista-column food-col" style={{ flex: '1 1 0px', width: '50%', minWidth: 0 }}>
+                {/* עמודה 2: הזמנות מזון */}
+                <div className="barista-column food-col" style={{ flex: '1 1 0px', minWidth: 0 }}>
                   <div className="column-header-bar">
                     <div className="column-header-title">
                       <span>🥪</span>
@@ -757,7 +800,7 @@ export default function App() {
 
                   {pendingFoodOrders.length === 0 ? (
                     <div className="empty-state">
-                      <p>אין הזמנות מזון להכנה כרגע! 🎉</p>
+                      <p>אין מזון להכנה כרגע! 🎉</p>
                     </div>
                   ) : (
                     <div className="column-orders-list">
@@ -780,6 +823,54 @@ export default function App() {
                           >
                             סיימתי! ✅
                           </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* עמודה 3: כמה מכל סוג קפה/שתייה להכין */}
+                <div className="barista-column summary-col" style={{ flex: '1 1 0px', minWidth: 0 }}>
+                  <div className="column-header-bar">
+                    <div className="column-header-title">
+                      <span>⚡</span>
+                      <span>כמה להכין עכשיו</span>
+                    </div>
+                    <span className="column-header-count summary-count-badge">
+                      {totalDrinksToPrepare} כוסות
+                    </span>
+                  </div>
+
+                  {coffeeSummary.length === 0 ? (
+                    <div className="empty-state">
+                      <p>אין קפה בתור כרגע! ☕</p>
+                    </div>
+                  ) : (
+                    <div className="column-orders-list">
+                      {coffeeSummary.map(item => (
+                        <div key={item.name} className="summary-card">
+                          <div className="summary-card-header">
+                            <div className="summary-card-title">
+                              <span>{item.icon}</span>
+                              <span>{item.name}</span>
+                            </div>
+                            <span className="summary-card-total">
+                              {item.totalCount} {item.totalCount === 1 ? 'כוס' : 'כוסות'}
+                            </span>
+                          </div>
+
+                          <div className="summary-groups-list">
+                            {Object.entries(item.milkGroups).map(([groupKey, ordersList]) => (
+                              <div key={groupKey} className="summary-group-row">
+                                <span className="summary-group-name">
+                                  {groupKey.includes('חלב') ? '🥛 ' : '🔸 '}{groupKey}: <strong>{ordersList.length}</strong>
+                                </span>
+                                <span className="summary-group-customers" title={ordersList.map(o => o.customerName).join(', ')}>
+                                  ({ordersList.map(o => o.customerName).join(', ')})
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ))}
                     </div>

@@ -232,42 +232,47 @@ body {
 }
 
 .order-card {
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 20px;
-  padding: 15px;
-  border-right: 5px solid var(--primary-color);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 14px;
+  padding: 10px 14px;
+  border-right: 4px solid var(--primary-color);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
 }
 
 .order-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding-bottom: 5px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding-bottom: 4px;
 }
 
 .order-header h2 {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 700;
+  margin: 0;
 }
 
 .order-time {
   background: rgba(0, 0, 0, 0.05);
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-size: 0.9rem;
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #636e72;
 }
 
 .order-items {
   list-style: none;
-  margin-bottom: 15px;
+  margin: 0 0 10px 0;
+  padding: 0;
 }
 
 .order-items li {
-  padding: 3px 0;
-  font-size: 1.05rem;
+  padding: 2px 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
 }
 
 .btn-success {
@@ -275,42 +280,43 @@ body {
   background: var(--secondary-color);
   color: white;
   border: none;
-  padding: 12px;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(32, 191, 107, 0.25);
 }
 
 .btn-success:active {
   transform: scale(0.98);
 }
 
-.empty-state { text-align: center; font-size: 1.3rem; color: var(--text-muted); padding: 30px 0; }
+.empty-state { text-align: center; font-size: 1.15rem; color: var(--text-muted); padding: 25px 0; }
 
-/* Two-Column Side-By-Side Layout (Parallel) */
+/* Parallel Columns Layout (Side-By-Side 3 Columns) */
+.barista-parallel-columns,
 .barista-two-columns {
   display: flex !important;
   flex-direction: row !important;
-  gap: 20px !important;
+  gap: 12px !important;
   width: 100% !important;
   align-items: flex-start !important;
 }
 
 .barista-column {
   flex: 1 1 0px !important;
-  width: 50% !important;
   min-width: 0 !important;
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(12px);
-  border-radius: 20px;
-  padding: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .drinks-col {
@@ -325,9 +331,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 14px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.8);
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
@@ -335,15 +341,15 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: 700;
 }
 
 .column-header-count {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
   color: white;
 }
 
@@ -358,15 +364,129 @@ body {
 .column-orders-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .order-card-drinks {
-  border-right: 5px solid #ff6b6b !important;
+  border-right: 4px solid #ff6b6b !important;
 }
 
 .order-card-food {
-  border-right: 5px solid #f39c12 !important;
+  border-right: 4px solid #f39c12 !important;
+}
+
+.summary-col {
+  border-top: 4px solid #6c5ce7;
+  background: linear-gradient(180deg, rgba(245, 243, 255, 0.65) 0%, rgba(255, 255, 255, 0.45) 100%);
+}
+
+.summary-count-badge {
+  background: #6c5ce7;
+}
+
+.summary-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 14px;
+  padding: 10px 12px;
+  border-right: 4px solid #6c5ce7;
+  box-shadow: 0 3px 10px rgba(108, 92, 231, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding-bottom: 5px;
+}
+
+.summary-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #2d3436;
+}
+
+.summary-card-total {
+  background: #6c5ce7;
+  color: white;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.summary-groups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-group-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(245, 243, 255, 0.7);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  border: 1px solid rgba(108, 92, 231, 0.12);
+}
+
+.summary-group-name {
+  font-weight: 600;
+  color: #2d3436;
+}
+
+.summary-group-customers {
+  font-size: 0.8rem;
+  color: #636e72;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 50%;
+}
+
+.summary-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding-bottom: 6px;
+}
+
+.summary-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #2d3436;
+}
+
+.summary-card-total {
+  background: #6c5ce7;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.summary-group-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.75);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 /* Menu Management */
