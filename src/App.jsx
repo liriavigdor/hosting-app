@@ -563,7 +563,7 @@ export default function App() {
   };
 
   return (
-    <div className="app-container" dir="rtl">
+    <div className={`app-container ${view === 'barista' ? 'app-container-wide' : ''}`} dir="rtl">
       <div className="main-content">
         
         {view === 'customer' && (
