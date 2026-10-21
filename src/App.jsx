@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import './index.css';
@@ -34,6 +34,125 @@ const getIcon = (iconStr) => {
     'svg_icecream': '🍦'
   };
   return map[iconStr] || iconStr;
+};
+
+const isFoodItem = (productOrName) => {
+  if (!productOrName) return false;
+  let name = typeof productOrName === 'string' ? productOrName : (productOrName.name || productOrName.text || '');
+  let cat = typeof productOrName === 'object' ? (productOrName.category || '') : '';
+  let icon = typeof productOrName === 'object' ? (productOrName.icon || '') : '';
+
+  // Clean name from options like (קצר, חלב רגיל)
+  name = name.split('(')[0].trim();
+
+  // If category is food or drink
+  if (cat.includes('אוכל') || cat.includes('מתוקים') || cat.includes('מאפים')) return true;
+  if (cat.includes('שתייה') || cat.includes('קפה') || cat.includes('אייס') || cat.includes('ברד')) return false;
+
+  // Food icons
+  if (['🥪', '🥐', '🍫', '🍩', '🍪', '🍰', '🧁', '🥨', '🌯', '🥗', '🍬', '🍭', '🍯', '🍦', '🍨'].includes(icon)) return true;
+  if (['☕', '🍵', '🫖', '🥤', '🧋', '🧊', '🍧', '🥛', '🧃', '🧉', '🍹', '🍷', '🍻', '🍋'].includes(icon)) return false;
+
+  // Food keywords
+  const foodKeywords = ['טוסט', 'כריך', 'סנדוויץ', 'סלט', 'קרואסון', 'דונאט', 'עוגייה', 'עוגה', 'קאפקייק', 'גלידה', 'בוריטו', 'בייגלה', 'אוכל', 'מתוקים', 'וופל', 'פנקייק'];
+  for (const kw of foodKeywords) {
+    if (name.includes(kw)) return true;
+  }
+
+  // Drink keywords
+  const drinkKeywords = ['קפה', 'אספרסו', 'אמריקנו', 'הפוך', 'קפוצ\'ינו', 'קפוצינו', 'לאטה', 'תה', 'שוקו', 'ברד', 'אייס', 'לימונדה', 'מים', 'מיץ', 'סודה', 'שייק'];
+  for (const kw of drinkKeywords) {
+    if (name.includes(kw)) return false;
+  }
+
+  return false;
+};
+
+const parseOrderItem = (itemStrOrObj) => {
+  if (typeof itemStrOrObj === 'object' && itemStrOrObj !== null) {
+    const isFood = itemStrOrObj.isFood !== undefined 
+      ? itemStrOrObj.isFood 
+      : isFoodItem(itemStrOrObj.name || itemStrOrObj.text);
+    return {
+      id: itemStrOrObj.id || Math.random().toString(36).substr(2, 9),
+      name: itemStrOrObj.name || (itemStrOrObj.text ? itemStrOrObj.text.split('(')[0].trim() : 'פריט'),
+      icon: itemStrOrObj.icon || (isFood ? '🥪' : '☕'),
+      milk: itemStrOrObj.milk || null,
+      option: itemStrOrObj.option || null,
+      text: itemStrOrObj.text || itemStrOrObj.name || '',
+      isFood,
+      completed: !!itemStrOrObj.completed
+    };
+  }
+
+  const str = String(itemStrOrObj);
+  const match = str.match(/^([^(]+)(?:\((.*)\))?$/);
+  const name = match ? match[1].trim() : str;
+  const rawDetails = match && match[2] ? match[2].split(',').map(s => s.trim()) : [];
+  
+  let milk = null;
+  const options = [];
+  
+  rawDetails.forEach(d => {
+    if (d.includes('חלב') || d === 'ללא חלב') {
+      milk = d;
+    } else {
+      options.push(d);
+    }
+  });
+
+  const isFood = isFoodItem(name);
+
+  return {
+    id: Math.random().toString(36).substr(2, 9),
+    name,
+    icon: isFood ? '🥪' : '☕',
+    milk,
+    option: options.join(', ') || null,
+    text: str,
+    isFood,
+    completed: false
+  };
+};
+
+const processOrder = (order) => {
+  const parsedItems = (order.items || []).map(parseOrderItem);
+  const drinkItems = parsedItems.filter(i => !i.isFood);
+  const foodItems = parsedItems.filter(i => i.isFood);
+  
+  const hasDrinks = drinkItems.length > 0;
+  const hasFood = foodItems.length > 0;
+  
+  const drinksCompleted = hasDrinks ? !!order.drinksCompleted : true;
+  const foodCompleted = hasFood ? !!order.foodCompleted : true;
+  const isFullyCompleted = drinksCompleted && foodCompleted;
+
+  return {
+    ...order,
+    parsedItems,
+    drinkItems,
+    foodItems,
+    hasDrinks,
+    hasFood,
+    drinksCompleted,
+    foodCompleted,
+    isFullyCompleted
+  };
+};
+
+const getMilkClass = (milkName) => {
+  if (!milkName) return 'milk-col-none';
+  if (milkName.includes('סויה')) return 'milk-col-soy';
+  if (milkName.includes('רגיל')) return 'milk-col-regular';
+  return 'milk-col-none';
+};
+
+const getMilkDisplayTitle = (milkName) => {
+  if (!milkName) return 'ללא חלב';
+  if (milkName.includes('סויה')) return '🥛 חלב סויה';
+  if (milkName.includes('רגיל')) return '🥛 חלב רגיל';
+  if (milkName.includes('ללא חלב') || milkName.includes('שחור')) return '☕ שחור / ללא חלב';
+  return milkName;
 };
 
 const getMainCategory = (product) => {
@@ -209,12 +328,122 @@ export default function App() {
       unsubscribeSettings();
       unsubscribeSlush();
     };
-  }, []);
+  }, [isShirel]);
 
   // Barista View State
   const [baristaTab, setBaristaTab] = useState('orders'); // 'orders', 'menu'
+  const [orderFilter, setOrderFilter] = useState('drinks'); // 'drinks', 'food', 'all'
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
   const [newProductName, setNewProductName] = useState('');
   const [newProductIcon, setNewProductIcon] = useState('☕');
+
+  // Memoized Processed Orders
+  const processedOrders = useMemo(() => {
+    return orders.map(processOrder);
+  }, [orders]);
+
+  // Aggregate live coffee & drinks summary
+  const coffeeSummary = useMemo(() => {
+    const summary = {};
+
+    processedOrders.forEach(order => {
+      if (order.drinksCompleted) return;
+
+      order.drinkItems.forEach(item => {
+        if (item.completed) return;
+
+        const name = item.name;
+        if (!summary[name]) {
+          summary[name] = {
+            name,
+            icon: item.icon || '☕',
+            totalCount: 0,
+            milkGroups: {}
+          };
+        }
+
+        summary[name].totalCount += 1;
+
+        // Group key: milk preference or drink option
+        let groupKey = item.milk;
+        if (!groupKey) {
+          groupKey = item.option ? item.option : 'רגיל / ללא חלב';
+        }
+
+        if (!summary[name].milkGroups[groupKey]) {
+          summary[name].milkGroups[groupKey] = [];
+        }
+
+        summary[name].milkGroups[groupKey].push({
+          customerName: order.customerName,
+          option: item.option,
+          milk: item.milk,
+          orderTime: order.time
+        });
+      });
+    });
+
+    return Object.values(summary);
+  }, [processedOrders]);
+
+  const totalDrinksToPrepare = useMemo(() => {
+    return coffeeSummary.reduce((sum, item) => sum + item.totalCount, 0);
+  }, [coffeeSummary]);
+
+  // Food summary
+  const foodSummary = useMemo(() => {
+    const summary = {};
+
+    processedOrders.forEach(order => {
+      if (order.foodCompleted) return;
+
+      order.foodItems.forEach(item => {
+        if (item.completed) return;
+
+        const name = item.name;
+        if (!summary[name]) {
+          summary[name] = {
+            name,
+            icon: item.icon || '🥪',
+            totalCount: 0,
+            customers: []
+          };
+        }
+
+        summary[name].totalCount += 1;
+        summary[name].customers.push({
+          customerName: order.customerName,
+          option: item.option,
+          orderTime: order.time
+        });
+      });
+    });
+
+    return Object.values(summary);
+  }, [processedOrders]);
+
+  const totalFoodToPrepare = useMemo(() => {
+    return foodSummary.reduce((sum, item) => sum + item.totalCount, 0);
+  }, [foodSummary]);
+
+  // Filtered orders for display
+  const pendingDrinksOrders = useMemo(() => {
+    return processedOrders.filter(o => !o.drinksCompleted && o.hasDrinks);
+  }, [processedOrders]);
+
+  const pendingFoodOrders = useMemo(() => {
+    return processedOrders.filter(o => !o.foodCompleted && o.hasFood);
+  }, [processedOrders]);
+
+  const activeOrders = useMemo(() => {
+    return processedOrders.filter(o => !o.isFullyCompleted);
+  }, [processedOrders]);
+
+  const displayedOrders = useMemo(() => {
+    if (orderFilter === 'drinks') return pendingDrinksOrders;
+    if (orderFilter === 'food') return pendingFoodOrders;
+    return activeOrders;
+  }, [orderFilter, pendingDrinksOrders, pendingFoodOrders, activeOrders]);
 
   // Customer State
   const [cart, setCart] = useState([]);
@@ -300,21 +529,37 @@ export default function App() {
       }
       return;
     }
-    const orderItems = cart.map(item => {
+    const structuredItems = cart.map(item => {
       let desc = item.product.name;
       const details = [];
       if (item.selectedOption) details.push(item.selectedOption);
       if (item.selectedMilk) details.push(item.selectedMilk);
       
-      if (details.length > 0) {
-        return `${desc} (${details.join(', ')})`;
-      }
-      return desc;
+      const fullText = details.length > 0 ? `${desc} (${details.join(', ')})` : desc;
+      const isFood = isFoodItem(item.product);
+
+      return {
+        id: Math.random().toString(36).substr(2, 9),
+        name: item.product.name,
+        icon: getIcon(item.product.icon),
+        option: item.selectedOption || null,
+        milk: item.selectedMilk || null,
+        isFood: isFood,
+        text: fullText,
+        completed: false
+      };
     });
+
+    const hasDrinks = structuredItems.some(i => !i.isFood);
+    const hasFood = structuredItems.some(i => i.isFood);
 
     const newOrder = {
       customerName,
-      items: orderItems,
+      items: structuredItems,
+      hasDrinks,
+      hasFood,
+      drinksCompleted: !hasDrinks,
+      foodCompleted: !hasFood,
       status: 'pending',
       time: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', hour12: false }),
       timestamp: Date.now() // to sort orders
@@ -331,11 +576,41 @@ export default function App() {
     }
   };
 
+  const completeDrinks = async (order) => {
+    try {
+      if (order.foodItems.length === 0 || order.foodCompleted) {
+        // Entire order is finished
+        await deleteDoc(doc(db, 'orders', order.id));
+      } else {
+        await updateDoc(doc(db, 'orders', order.id), {
+          drinksCompleted: true
+        });
+      }
+    } catch (err) {
+      console.error('Error completing drinks:', err);
+    }
+  };
+
+  const completeFood = async (order) => {
+    try {
+      if (order.drinkItems.length === 0 || order.drinksCompleted) {
+        // Entire order is finished
+        await deleteDoc(doc(db, 'orders', order.id));
+      } else {
+        await updateDoc(doc(db, 'orders', order.id), {
+          foodCompleted: true
+        });
+      }
+    } catch (err) {
+      console.error('Error completing food:', err);
+    }
+  };
+
   const completeOrder = async (orderId) => {
     try {
       await deleteDoc(doc(db, 'orders', orderId));
     } catch (err) {
-      console.error(err);
+      console.error('Error completing order:', err);
     }
   };
 
@@ -507,6 +782,11 @@ export default function App() {
                 </form>
               </div>
             )}
+            <div className="quick-switch-footer">
+              <button type="button" className="btn-link-subtle" onClick={() => setView('barista')}>
+                ☕ מעבר לעמדת שיראל (ניהול בריסטה והזמנות)
+              </button>
+            </div>
           </div>
         )}
 
@@ -525,33 +805,246 @@ export default function App() {
 
             {baristaTab === 'orders' && (
               <div className="tab-content">
-                {orders.length === 0 ? (
+                {/* Filter Sub-Tabs */}
+                <div className="orders-filter-bar">
+                  <button 
+                    className={`filter-btn ${orderFilter === 'drinks' ? 'active' : ''}`} 
+                    onClick={() => setOrderFilter('drinks')}
+                  >
+                    ☕ שתייה <span className="filter-badge">{pendingDrinksOrders.length}</span>
+                  </button>
+                  <button 
+                    className={`filter-btn ${orderFilter === 'food' ? 'active' : ''}`} 
+                    onClick={() => setOrderFilter('food')}
+                  >
+                    🥪 מזון <span className="filter-badge">{pendingFoodOrders.length}</span>
+                  </button>
+                  <button 
+                    className={`filter-btn ${orderFilter === 'all' ? 'active' : ''}`} 
+                    onClick={() => setOrderFilter('all')}
+                  >
+                    📋 כל ההזמנות <span className="filter-badge">{activeOrders.length}</span>
+                  </button>
+                </div>
+
+                {/* Live Coffee & Drinks Summary (Side-by-side milks) */}
+                {(orderFilter === 'drinks' || orderFilter === 'all') && coffeeSummary.length > 0 && (
+                  <div className="coffee-prep-dashboard">
+                    <div className="coffee-prep-top" onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}>
+                      <div className="coffee-prep-title">
+                        <h2>☕ ריכוז קפה ושתייה להכנה עכשיו</h2>
+                        <span className="total-cups-pill">{totalDrinksToPrepare} כוסות סה״כ</span>
+                      </div>
+                      <button className="btn-toggle-summary" type="button">
+                        {isSummaryExpanded ? '🔼 צמצם' : '🔽 הרחב'}
+                      </button>
+                    </div>
+
+                    {isSummaryExpanded && (
+                      <div className="coffee-cards-grid">
+                        {coffeeSummary.map((group) => (
+                          <div key={group.name} className="coffee-prep-card">
+                            <div className="coffee-card-header">
+                              <div className="coffee-card-header-right">
+                                <span className="coffee-card-icon">{group.icon}</span>
+                                <span className="coffee-card-name">{group.name}</span>
+                              </div>
+                              <span className="coffee-card-count">{group.totalCount} כוסות</span>
+                            </div>
+
+                            {/* Side-by-side Milk Types Container */}
+                            <div className="milk-columns-container">
+                              {Object.entries(group.milkGroups).map(([milkName, customerList]) => (
+                                <div key={milkName} className={`milk-column ${getMilkClass(milkName)}`}>
+                                  <div className="milk-column-header">
+                                    <span>{getMilkDisplayTitle(milkName)}</span>
+                                    <span className="milk-count-pill">{customerList.length}</span>
+                                  </div>
+                                  <div className="milk-column-items">
+                                    {customerList.map((cust, idx) => (
+                                      <div key={idx} className="customer-drink-pill">
+                                        <span className="cust-name">{cust.customerName}</span>
+                                        {cust.option && <span className="cust-option">({cust.option})</span>}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Food Prep Summary (in Food tab) */}
+                {orderFilter === 'food' && foodSummary.length > 0 && (
+                  <div className="food-prep-dashboard">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h2 style={{ fontSize: '1.2rem', margin: 0, color: '#d35400' }}>🥪 ריכוז מזון להכנה עכשיו</h2>
+                      <span className="total-cups-pill" style={{ background: '#f39c12' }}>{totalFoodToPrepare} פריטים סה״כ</span>
+                    </div>
+                    <div className="food-cards-grid">
+                      {foodSummary.map((group) => (
+                        <div key={group.name} className="food-prep-card">
+                          <div className="food-prep-card-header">
+                            <span>{group.icon} {group.name}</span>
+                            <span className="coffee-card-count">{group.totalCount}</span>
+                          </div>
+                          <div className="food-customers-list">
+                            {group.customers.map((c, idx) => (
+                              <span key={idx}>
+                                <strong>{c.customerName}</strong>{c.option ? ` (${c.option})` : ''}{idx < group.customers.length - 1 ? ', ' : ''}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Orders List */}
+                {displayedOrders.length === 0 ? (
                   <div className="empty-state">
-                    <p>אין הזמנות כרגע. אפשר לשתות קפה בשקט! 🎉</p>
+                    {orderFilter === 'drinks' && <p>אין משקאות להכנה כרגע! כל הכבוד שיראל! ☕🎉</p>}
+                    {orderFilter === 'food' && <p>אין הזמנות מזון פתוחות כרגע! 🥪🎉</p>}
+                    {orderFilter === 'all' && <p>אין הזמנות פתוחות כרגע. אפשר לשתות קפה בשקט! 🎉</p>}
                   </div>
                 ) : (
                   <div className="orders-list">
-                    {orders.map(order => (
-                      <div key={order.id} className="order-card">
+                    {displayedOrders.map(order => (
+                      <div key={order.id} className="order-card-segmented">
                         <div className="order-header">
                           <h2>{order.customerName}</h2>
                           <span className="order-time">{order.time}</span>
                         </div>
-                        
-                        {order.milk && order.milk !== 'ללא' && (
-                          <div className="order-milk-pref" style={{ background: 'rgba(255,200,200,0.4)', padding: '5px 10px', borderRadius: '8px', marginBottom: '10px', fontSize: '0.9rem', color: '#c0392b', fontWeight: '600' }}>
-                            חלב: {order.milk}
+
+                        {/* Drinks Section */}
+                        {order.hasDrinks && (orderFilter === 'drinks' || orderFilter === 'all' || !order.drinksCompleted) && (
+                          <div className="order-section-block drinks-section">
+                            <div className="order-section-title-row">
+                              <span className="order-section-title">☕ שתייה</span>
+                              <span className={`status-tag ${order.drinksCompleted ? 'done' : 'waiting'}`}>
+                                {order.drinksCompleted ? 'הושלם ✅' : 'בהכנה ⏳'}
+                              </span>
+                            </div>
+                            <ul className="section-items-list">
+                              {order.drinkItems.map((item, idx) => (
+                                <li key={idx} className={`section-item-row ${order.drinksCompleted ? 'item-done' : ''}`}>
+                                  🔸 {item.text}
+                                </li>
+                              ))}
+                            </ul>
                           </div>
                         )}
 
-                        <ul className="order-items">
-                          {order.items.map((item, idx) => (
-                            <li key={idx}>🔸 {item}</li>
-                          ))}
-                        </ul>
-                        <button className="btn-success" onClick={() => completeOrder(order.id)}>
-                          סיימתי! ✅
-                        </button>
+                        {/* Food Section */}
+                        {order.hasFood && (orderFilter === 'food' || orderFilter === 'all' || !order.foodCompleted) && (
+                          <div className="order-section-block food-section">
+                            <div className="order-section-title-row">
+                              <span className="order-section-title">🥪 מזון</span>
+                              <span className={`status-tag ${order.foodCompleted ? 'done' : 'waiting'}`}>
+                                {order.foodCompleted ? 'הושלם ✅' : 'בהכנה ⏳'}
+                              </span>
+                            </div>
+                            <ul className="section-items-list">
+                              {order.foodItems.map((item, idx) => (
+                                <li key={idx} className={`section-item-row ${order.foodCompleted ? 'item-done' : ''}`}>
+                                  🔸 {item.text}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Other Category Note when filtered */}
+                        {orderFilter === 'drinks' && order.hasFood && (
+                          <div className="other-category-hint">
+                            <span>🥪 יש גם מזון: {order.foodItems.map(f => f.name).join(', ')}</span>
+                            <span>{order.foodCompleted ? 'הושלם ✅' : 'ממתין ⏳'}</span>
+                          </div>
+                        )}
+
+                        {orderFilter === 'food' && order.hasDrinks && (
+                          <div className="other-category-hint">
+                            <span>☕ יש גם שתייה: {order.drinkItems.map(d => d.name).join(', ')}</span>
+                            <span>{order.drinksCompleted ? 'סופקה ✅' : 'בהכנה ⏳'}</span>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="btn-action-group">
+                          {orderFilter === 'drinks' && (
+                            <div className="btn-action-row">
+                              <button 
+                                className="btn-complete-section btn-drinks-action" 
+                                onClick={() => completeDrinks(order)}
+                              >
+                                השתייה מוכנה! ☕✅
+                              </button>
+                              {order.hasFood && !order.foodCompleted && (
+                                <button 
+                                  className="btn-complete-section btn-all-action" 
+                                  onClick={() => completeOrder(order.id)}
+                                  title="סיימתי הכל (כולל המזון)"
+                                >
+                                  סיימתי הכל! 🚀
+                                </button>
+                              )}
+                            </div>
+                          )}
+
+                          {orderFilter === 'food' && (
+                            <div className="btn-action-row">
+                              <button 
+                                className="btn-complete-section btn-food-action" 
+                                onClick={() => completeFood(order)}
+                              >
+                                המזון מוכן! 🥪✅
+                              </button>
+                              {order.hasDrinks && !order.drinksCompleted && (
+                                <button 
+                                  className="btn-complete-section btn-all-action" 
+                                  onClick={() => completeOrder(order.id)}
+                                  title="סיימתי הכל (כולל השתייה)"
+                                >
+                                  סיימתי הכל! 🚀
+                                </button>
+                              )}
+                            </div>
+                          )}
+
+                          {orderFilter === 'all' && (
+                            <div className="btn-action-group">
+                              <div className="btn-action-row">
+                                {order.hasDrinks && !order.drinksCompleted && (
+                                  <button 
+                                    className="btn-complete-section btn-drinks-action" 
+                                    onClick={() => completeDrinks(order)}
+                                  >
+                                    שתייה מוכנה! ☕
+                                  </button>
+                                )}
+                                {order.hasFood && !order.foodCompleted && (
+                                  <button 
+                                    className="btn-complete-section btn-food-action" 
+                                    onClick={() => completeFood(order)}
+                                  >
+                                    מזון מוכן! 🥪
+                                  </button>
+                                )}
+                              </div>
+                              <button 
+                                className="btn-all-action" 
+                                onClick={() => completeOrder(order.id)}
+                              >
+                                סיימתי את כל ההזמנה! 🚀
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -647,7 +1140,7 @@ export default function App() {
                           for (const item of fullMenu) {
                             if (!currentNames.has(item.name)) {
                               try {
-                                const { id, ...itemData } = item;
+                                const { id: _id, ...itemData } = item;
                                 await addDoc(collection(db, 'products'), itemData);
                                 currentNames.add(item.name);
                               } catch (e) { console.error(e) }
@@ -712,6 +1205,11 @@ export default function App() {
                 </div>
               </div>
             )}
+            <div className="quick-switch-footer">
+              <button type="button" className="btn-link-subtle" onClick={() => setView('customer')}>
+                📱 מעבר לתצוגת לקוח (ביצוע הזמנות)
+              </button>
+            </div>
           </div>
         )}
       </div>

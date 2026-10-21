@@ -428,3 +428,497 @@ body {
   background: #e0e0e0;
 }
 
+/* --- Barista Filter Sub-Tabs --- */
+.orders-filter-bar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  border: 1.5px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.filter-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.filter-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.filter-badge {
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.filter-btn.active .filter-badge {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+/* --- Live Coffee & Drinks Summary (ריכוז קפה להכנה) --- */
+.coffee-prep-dashboard {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 250, 245, 0.9) 100%);
+  border: 2px solid rgba(255, 179, 133, 0.5);
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 24px rgba(230, 126, 34, 0.12);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.coffee-prep-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.coffee-prep-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.coffee-prep-title h2 {
+  font-size: 1.25rem;
+  color: #2c3e50;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.total-cups-pill {
+  background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(214, 48, 49, 0.3);
+}
+
+.btn-toggle-summary {
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 15px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-toggle-summary:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text-main);
+}
+
+.coffee-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 15px;
+}
+
+.coffee-prep-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.coffee-prep-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.coffee-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px solid #f1f2f6;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.coffee-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coffee-card-icon {
+  font-size: 1.5rem;
+}
+
+.coffee-card-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #2f3542;
+}
+
+.coffee-card-count {
+  background: #f1f2f6;
+  color: #2f3542;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid #dfe4ea;
+}
+
+/* Side-by-side Milk layout */
+.milk-columns-container {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.milk-column {
+  flex: 1 1 180px;
+  min-width: 160px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+/* Specific styling for milk types */
+.milk-col-regular {
+  background: #fffdf9;
+  border: 1.5px solid #f9ca24;
+}
+
+.milk-col-soy {
+  background: #f0fdf4;
+  border: 1.5px solid #2ecc71;
+}
+
+.milk-col-none {
+  background: #f8f9fa;
+  border: 1.5px solid #ced6e0;
+}
+
+.milk-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.milk-col-regular .milk-column-header {
+  color: #d35400;
+}
+
+.milk-col-soy .milk-column-header {
+  color: #27ae60;
+}
+
+.milk-col-none .milk-column-header {
+  color: #57606f;
+}
+
+.milk-count-pill {
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+
+.milk-column-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.customer-drink-pill {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.cust-name {
+  font-weight: 700;
+  color: #2f3542;
+}
+
+.cust-option {
+  color: #747d8c;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* --- Food Prep Dashboard --- */
+.food-prep-dashboard {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(254, 249, 231, 0.9) 100%);
+  border: 2px solid rgba(241, 196, 15, 0.5);
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 24px rgba(243, 156, 18, 0.1);
+}
+
+.food-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.food-prep-card {
+  background: white;
+  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid #faeccb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.food-prep-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.food-customers-list {
+  font-size: 0.85rem;
+  color: #57606f;
+  line-height: 1.4;
+}
+
+/* --- Order Card Enhancements for Drinks & Food Separation --- */
+.order-card-segmented {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.25s ease;
+}
+
+.order-card-segmented:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.09);
+}
+
+.order-section-block {
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.order-section-block.drinks-section {
+  border-right: 4px solid var(--primary-color);
+  background: #fffafa;
+}
+
+.order-section-block.food-section {
+  border-right: 4px solid #f39c12;
+  background: #fefcf7;
+}
+
+.order-section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.order-section-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+
+.status-tag.done {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-tag.waiting {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.section-items-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.section-item-row {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #2f3542;
+}
+
+.section-item-row.item-done {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.other-category-hint {
+  background: #f1f2f6;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  color: #57606f;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-action-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.btn-action-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-complete-section {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.btn-drinks-action {
+  background: linear-gradient(135deg, #ff7675 0%, #e17055 100%);
+  color: white;
+}
+
+.btn-drinks-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(225, 112, 85, 0.3);
+}
+
+.btn-food-action {
+  background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
+  color: white;
+}
+
+.btn-food-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+}
+
+.btn-all-action {
+  width: 100%;
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(46, 204, 113, 0.2);
+}
+
+.btn-all-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.35);
+}
+
+.quick-switch-footer {
+  text-align: center;
+  margin-top: 30px;
+  padding: 15px;
+}
+
+.btn-link-subtle {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-link-subtle:hover {
+  background: white;
+  color: var(--text-main);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+
