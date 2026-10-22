@@ -18,3 +18,17 @@ When the user provides an idea for a new application (e.g. "אפליקציית �
    - Implement initial state management and Firebase hooks.
 
 After completing these phases, present the working base to the user to begin Phase 5 (Fine-tuning).
+
+# Strict Production Menu Protection Rule (איסור מוחלט על שינוי תפריט)
+- **לעולם, בשום אופן ומצב, אין להוסיף, לשנות, להמציא או לערוך פריטים בתפריט האפליקציה (בין אם ב-Firestore, ב-DEFAULT_MENU או בנתוני דמה)**.
+- האפליקציה משמשת לקוחות ועובדים פעילים בייצור חי יום-יום. כל פריט בתפריט מייצג מלאי אמיתי.
+- מותר לבצע שינויים בתפריט **אך ורק** כאשר המשתמש מספק במפורש את שמות הפריטים והוראה מפורשת לעשות זאת, ללא כל יוזמות אישיות או המצאות נוספות.
+
+# Strict Git Push Prohibition (איסור מוחלט על דחיפה ל-Git)
+- **חל איסור מוחלט לבצע `git push` באופן אוטומטי או עצמאי.**
+- לעולם אין לדחוף שינויים ל-Git (או לפרוס ל-Production) ללא בקשה מפורשת ואישור ספציפי מהמשתמש.
+
+# Strict App Modification Approval (אישור מראש לכל שינוי באפליקציה)
+- **אין לבצע שום שינוי בקוד, בקבצים או במבנה האפליקציה ללא אישור והנחיה ישירה מהמשתמש.**
+
+
