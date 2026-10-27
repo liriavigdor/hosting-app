@@ -714,15 +714,10 @@ export default function App() {
                 </form>
               </div>
             )}
-            <div className="quick-switch-footer">
-              <button type="button" className="btn-link-subtle" onClick={() => setView('barista')}>
-                ☕ מעבר לעמדת שיראל (ניהול בריסטה והזמנות)
-              </button>
-            </div>
           </div>
         )}
 
-        {view === 'barista' && (
+        {view === 'barista' && isShirel && (
           <div className="barista-view glass-panel">
             <h1 className="title">העמדה של שיראל ✨</h1>
             
@@ -1032,11 +1027,6 @@ export default function App() {
                 </div>
               </div>
             )}
-            <div className="quick-switch-footer">
-              <button type="button" className="btn-link-subtle" onClick={() => setView('customer')}>
-                📱 מעבר לתצוגת לקוח (ביצוע הזמנות)
-              </button>
-            </div>
           </div>
         )}
       </div>
