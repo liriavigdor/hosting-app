@@ -976,7 +976,9 @@ export default function App() {
                     </button>
                   </div>
                   <div className="menu-items-table">
-                    {products.map(product => (
+                    {[...products]
+                      .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'he'))
+                      .map(product => (
                       <div key={product.id} className="menu-item-row" style={{ opacity: product.hidden ? 0.5 : 1 }}>
                         <div className="menu-item-info">
                           <div style={{ position: 'relative', display: 'inline-block', width: '30px', height: '30px', textAlign: 'center', lineHeight: '30px' }}>
