@@ -850,252 +850,222 @@ export default function App() {
             </div>
 
             {baristaTab === 'orders' && (
-              <>
-                {/* סרגל שליטה מהיר לצמצום/הרחבת עמודות */}
-                <div className="columns-control-bar">
-                  <span className="columns-control-hint">תצוגת עמודות:</span>
-                  <button 
-                    type="button"
-                    className={`col-pill-btn drinks-pill ${!collapsedCols.drinks ? 'is-open' : 'is-collapsed'}`}
-                    onClick={() => toggleCol('drinks')}
-                    title={!collapsedCols.drinks ? "לחץ לצמצום שתייה" : "לחץ להרחבת שתייה"}
-                  >
-                    <span>☕</span>
-                    <span>שתייה ({pendingDrinksOrders.length})</span>
-                    <span className="col-pill-arrow">{!collapsedCols.drinks ? '▼' : '◀'}</span>
-                  </button>
+              <div className="barista-parallel-columns" style={{ display: 'flex', flexDirection: 'row', gap: '8px', width: '100%', alignItems: 'flex-start' }}>
+                {/* עמודה 1: הזמנות שתייה */}
+                <div 
+                  className={`barista-column drinks-col ${collapsedCols.drinks ? 'is-collapsed' : ''}`}
+                  onClick={collapsedCols.drinks ? () => toggleCol('drinks') : undefined}
+                  title={collapsedCols.drinks ? "לחץ להרחבת שתייה" : undefined}
+                >
+                  {collapsedCols.drinks ? (
+                    <button 
+                      type="button" 
+                      className="arrow-toggle-btn" 
+                      onClick={() => toggleCol('drinks')}
+                      title="הרחב תפריט שתייה"
+                    >
+                      ▶
+                    </button>
+                  ) : (
+                    <>
+                      <div className="column-header-bar">
+                        <div className="column-header-title">
+                          <span>☕</span>
+                          <span>הזמנות שתייה</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span className="column-header-count drinks-count-badge">
+                            {pendingDrinksOrders.length}
+                          </span>
+                          <button 
+                            type="button" 
+                            className="arrow-toggle-btn" 
+                            onClick={() => toggleCol('drinks')}
+                            title="צמצם תפריט שתייה"
+                          >
+                            ◀
+                          </button>
+                        </div>
+                      </div>
 
-                  <button 
-                    type="button"
-                    className={`col-pill-btn food-pill ${!collapsedCols.food ? 'is-open' : 'is-collapsed'}`}
-                    onClick={() => toggleCol('food')}
-                    title={!collapsedCols.food ? "לחץ לצמצום מזון" : "לחץ להרחבת מזון"}
-                  >
-                    <span>🥪</span>
-                    <span>מזון ({pendingFoodOrders.length})</span>
-                    <span className="col-pill-arrow">{!collapsedCols.food ? '▼' : '◀'}</span>
-                  </button>
+                      {pendingDrinksOrders.length === 0 ? (
+                        <div className="empty-state">
+                          <p>אין שתייה להכנה כרגע! 🎉</p>
+                        </div>
+                      ) : (
+                        <div className="column-orders-list">
+                          {pendingDrinksOrders.map(order => (
+                            <div key={order.id} className="order-card order-card-drinks">
+                              <div className="order-header">
+                                <h2>{order.customerName}</h2>
+                                <span className="order-time">{order.time}</span>
+                              </div>
 
-                  <button 
-                    type="button"
-                    className={`col-pill-btn summary-pill ${!collapsedCols.summary ? 'is-open' : 'is-collapsed'}`}
-                    onClick={() => toggleCol('summary')}
-                    title={!collapsedCols.summary ? "לחץ לצמצום כמויות" : "לחץ להרחבת כמויות"}
-                  >
-                    <span>⚡</span>
-                    <span>כמה להכין ({totalDrinksToPrepare})</span>
-                    <span className="col-pill-arrow">{!collapsedCols.summary ? '▼' : '◀'}</span>
-                  </button>
+                              <ul className="order-items">
+                                {order.drinkItems.map((item, idx) => (
+                                  <li key={idx}>🔸 {item.text || item.name}</li>
+                                ))}
+                              </ul>
+
+                              <button 
+                                className="btn-success" 
+                                onClick={() => completeDrinks(order)}
+                              >
+                                סיימתי! ✅
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
 
-                <div className="barista-parallel-columns" style={{ display: 'flex', flexDirection: 'row', gap: '10px', width: '100%', alignItems: 'flex-start' }}>
-                  {/* עמודה 1: הזמנות שתייה */}
-                  <div 
-                    className={`barista-column drinks-col ${collapsedCols.drinks ? 'is-collapsed' : ''}`}
-                    onClick={collapsedCols.drinks ? () => toggleCol('drinks') : undefined}
-                  >
-                    {collapsedCols.drinks ? (
-                      <div className="collapsed-column-content" title="לחץ להרחבת הזמנות שתייה">
-                        <span className="collapsed-col-icon">☕</span>
-                        <span className="column-header-count drinks-count-badge">{pendingDrinksOrders.length}</span>
-                        <div className="collapsed-vertical-title">הזמנות שתייה</div>
-                        <span className="collapsed-expand-hint" title="פתח">▶</span>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="column-header-bar">
-                          <div className="column-header-title">
-                            <span>☕</span>
-                            <span>הזמנות שתייה</span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span className="column-header-count drinks-count-badge">
-                              {pendingDrinksOrders.length}
-                            </span>
-                            <button 
-                              type="button" 
-                              className="btn-collapse-col" 
-                              onClick={(e) => { e.stopPropagation(); toggleCol('drinks'); }}
-                              title="צמצם עמודה זו"
-                            >
-                              צמצם ◀
-                            </button>
-                          </div>
+                {/* עמודה 2: הזמנות מזון */}
+                <div 
+                  className={`barista-column food-col ${collapsedCols.food ? 'is-collapsed' : ''}`}
+                  onClick={collapsedCols.food ? () => toggleCol('food') : undefined}
+                  title={collapsedCols.food ? "לחץ להרחבת מזון" : undefined}
+                >
+                  {collapsedCols.food ? (
+                    <button 
+                      type="button" 
+                      className="arrow-toggle-btn" 
+                      onClick={() => toggleCol('food')}
+                      title="הרחב תפריט מזון"
+                    >
+                      ▶
+                    </button>
+                  ) : (
+                    <>
+                      <div className="column-header-bar">
+                        <div className="column-header-title">
+                          <span>🥪</span>
+                          <span>הזמנות מזון</span>
                         </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span className="column-header-count food-count-badge">
+                            {pendingFoodOrders.length}
+                          </span>
+                          <button 
+                            type="button" 
+                            className="arrow-toggle-btn" 
+                            onClick={() => toggleCol('food')}
+                            title="צמצם תפריט מזון"
+                          >
+                            ◀
+                          </button>
+                        </div>
+                      </div>
 
-                        {pendingDrinksOrders.length === 0 ? (
-                          <div className="empty-state">
-                            <p>אין שתייה להכנה כרגע! 🎉</p>
-                          </div>
-                        ) : (
-                          <div className="column-orders-list">
-                            {pendingDrinksOrders.map(order => (
-                              <div key={order.id} className="order-card order-card-drinks">
-                                <div className="order-header">
-                                  <h2>{order.customerName}</h2>
-                                  <span className="order-time">{order.time}</span>
-                                </div>
-
-                                <ul className="order-items">
-                                  {order.drinkItems.map((item, idx) => (
-                                    <li key={idx}>🔸 {item.text || item.name}</li>
-                                  ))}
-                                </ul>
-
-                                <button 
-                                  className="btn-success" 
-                                  onClick={() => completeDrinks(order)}
-                                >
-                                  סיימתי! ✅
-                                </button>
+                      {pendingFoodOrders.length === 0 ? (
+                        <div className="empty-state">
+                          <p>אין מזון להכנה כרגע! 🎉</p>
+                        </div>
+                      ) : (
+                        <div className="column-orders-list">
+                          {pendingFoodOrders.map(order => (
+                            <div key={order.id} className="order-card order-card-food">
+                              <div className="order-header">
+                                <h2>{order.customerName}</h2>
+                                <span className="order-time">{order.time}</span>
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
 
-                  {/* עמודה 2: הזמנות מזון */}
-                  <div 
-                    className={`barista-column food-col ${collapsedCols.food ? 'is-collapsed' : ''}`}
-                    onClick={collapsedCols.food ? () => toggleCol('food') : undefined}
-                  >
-                    {collapsedCols.food ? (
-                      <div className="collapsed-column-content" title="לחץ להרחבת הזמנות מזון">
-                        <span className="collapsed-col-icon">🥪</span>
-                        <span className="column-header-count food-count-badge">{pendingFoodOrders.length}</span>
-                        <div className="collapsed-vertical-title">הזמנות מזון</div>
-                        <span className="collapsed-expand-hint" title="פתח">▶</span>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="column-header-bar">
-                          <div className="column-header-title">
-                            <span>🥪</span>
-                            <span>הזמנות מזון</span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span className="column-header-count food-count-badge">
-                              {pendingFoodOrders.length}
-                            </span>
-                            <button 
-                              type="button" 
-                              className="btn-collapse-col" 
-                              onClick={(e) => { e.stopPropagation(); toggleCol('food'); }}
-                              title="צמצם עמודה זו"
-                            >
-                              צמצם ◀
-                            </button>
-                          </div>
+                              <ul className="order-items">
+                                {order.foodItems.map((item, idx) => (
+                                  <li key={idx}>🔸 {item.text || item.name}</li>
+                                ))}
+                              </ul>
+
+                              <button 
+                                className="btn-success" 
+                                onClick={() => completeFood(order)}
+                              >
+                                סיימתי! ✅
+                              </button>
+                            </div>
+                          ))}
                         </div>
+                      )}
+                    </>
+                  )}
+                </div>
 
-                        {pendingFoodOrders.length === 0 ? (
-                          <div className="empty-state">
-                            <p>אין מזון להכנה כרגע! 🎉</p>
-                          </div>
-                        ) : (
-                          <div className="column-orders-list">
-                            {pendingFoodOrders.map(order => (
-                              <div key={order.id} className="order-card order-card-food">
-                                <div className="order-header">
-                                  <h2>{order.customerName}</h2>
-                                  <span className="order-time">{order.time}</span>
+                {/* עמודה 3: כמה מכל סוג קפה/שתייה להכין */}
+                <div 
+                  className={`barista-column summary-col ${collapsedCols.summary ? 'is-collapsed' : ''}`}
+                  onClick={collapsedCols.summary ? () => toggleCol('summary') : undefined}
+                  title={collapsedCols.summary ? "לחץ להרחבת כמויות" : undefined}
+                >
+                  {collapsedCols.summary ? (
+                    <button 
+                      type="button" 
+                      className="arrow-toggle-btn" 
+                      onClick={() => toggleCol('summary')}
+                      title="הרחב תפריט כמויות"
+                    >
+                      ▶
+                    </button>
+                  ) : (
+                    <>
+                      <div className="column-header-bar">
+                        <div className="column-header-title">
+                          <span>⚡</span>
+                          <span>כמה להכין עכשיו</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span className="column-header-count summary-count-badge">
+                            {totalDrinksToPrepare} כוסות
+                          </span>
+                          <button 
+                            type="button" 
+                            className="arrow-toggle-btn" 
+                            onClick={() => toggleCol('summary')}
+                            title="צמצם תפריט כמויות"
+                          >
+                            ◀
+                          </button>
+                        </div>
+                      </div>
+
+                      {coffeeSummary.length === 0 ? (
+                        <div className="empty-state">
+                          <p>אין קפה בתור כרגע! ☕</p>
+                        </div>
+                      ) : (
+                        <div className="column-orders-list">
+                          {coffeeSummary.map(item => (
+                            <div key={item.name} className="summary-card">
+                              <div className="summary-card-header">
+                                <div className="summary-card-title">
+                                  <span>{item.icon}</span>
+                                  <span>{item.name}</span>
                                 </div>
-
-                                <ul className="order-items">
-                                  {order.foodItems.map((item, idx) => (
-                                    <li key={idx}>🔸 {item.text || item.name}</li>
-                                  ))}
-                                </ul>
-
-                                <button 
-                                  className="btn-success" 
-                                  onClick={() => completeFood(order)}
-                                >
-                                  סיימתי! ✅
-                                </button>
+                                <span className="summary-card-total">
+                                  {item.totalCount} {item.totalCount === 1 ? 'כוס' : 'כוסות'}
+                                </span>
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
 
-                  {/* עמודה 3: כמה מכל סוג קפה/שתייה להכין */}
-                  <div 
-                    className={`barista-column summary-col ${collapsedCols.summary ? 'is-collapsed' : ''}`}
-                    onClick={collapsedCols.summary ? () => toggleCol('summary') : undefined}
-                  >
-                    {collapsedCols.summary ? (
-                      <div className="collapsed-column-content" title="לחץ להרחבת סיכום כמויות">
-                        <span className="collapsed-col-icon">⚡</span>
-                        <span className="column-header-count summary-count-badge">{totalDrinksToPrepare}</span>
-                        <div className="collapsed-vertical-title">כמה להכין</div>
-                        <span className="collapsed-expand-hint" title="פתח">▶</span>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="column-header-bar">
-                          <div className="column-header-title">
-                            <span>⚡</span>
-                            <span>כמה להכין עכשיו</span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span className="column-header-count summary-count-badge">
-                              {totalDrinksToPrepare} כוסות
-                            </span>
-                            <button 
-                              type="button" 
-                              className="btn-collapse-col" 
-                              onClick={(e) => { e.stopPropagation(); toggleCol('summary'); }}
-                              title="צמצם עמודה זו"
-                            >
-                              צמצם ◀
-                            </button>
-                          </div>
-                        </div>
-
-                        {coffeeSummary.length === 0 ? (
-                          <div className="empty-state">
-                            <p>אין קפה בתור כרגע! ☕</p>
-                          </div>
-                        ) : (
-                          <div className="column-orders-list">
-                            {coffeeSummary.map(item => (
-                              <div key={item.name} className="summary-card">
-                                <div className="summary-card-header">
-                                  <div className="summary-card-title">
-                                    <span>{item.icon}</span>
-                                    <span>{item.name}</span>
+                              <div className="summary-groups-list">
+                                {Object.entries(item.milkGroups).map(([groupKey, ordersList]) => (
+                                  <div key={groupKey} className="summary-group-row">
+                                    <span className="summary-group-name">
+                                      {groupKey.includes('חלב') ? '🥛 ' : '🔸 '}{groupKey}: <strong>{ordersList.length}</strong>
+                                    </span>
+                                    <span className="summary-group-customers" title={ordersList.map(o => o.customerName).join(', ')}>
+                                      ({ordersList.map(o => o.customerName).join(', ')})
+                                    </span>
                                   </div>
-                                  <span className="summary-card-total">
-                                    {item.totalCount} {item.totalCount === 1 ? 'כוס' : 'כוסות'}
-                                  </span>
-                                </div>
-
-                                <div className="summary-groups-list">
-                                  {Object.entries(item.milkGroups).map(([groupKey, ordersList]) => (
-                                    <div key={groupKey} className="summary-group-row">
-                                      <span className="summary-group-name">
-                                        {groupKey.includes('חלב') ? '🥛 ' : '🔸 '}{groupKey}: <strong>{ordersList.length}</strong>
-                                      </span>
-                                      <span className="summary-group-customers" title={ordersList.map(o => o.customerName).join(', ')}>
-                                        ({ordersList.map(o => o.customerName).join(', ')})
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
+                                ))}
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
-              </>
+              </div>
             )}
 
             {baristaTab === 'menu' && (
