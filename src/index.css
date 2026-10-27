@@ -1221,4 +1221,455 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+/* --- REVIEWS SYSTEM (Floating button & Modals) --- */
+.fab-review-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  min-width: 62px;
+  height: 62px;
+  border-radius: 35px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  gap: 8px;
+  transition: all 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fab-review-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 28px rgba(79, 70, 229, 0.55);
+}
+
+.fab-review-btn:active {
+  transform: scale(0.96);
+}
+
+.fab-review-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.fab-review-text {
+  font-size: 0.92rem;
+  font-weight: 800;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.fab-review-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ff4757;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 900;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(255, 71, 87, 0.5);
+  animation: popIn 0.3s ease;
+}
+
+/* Modal Backdrop */
+.review-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Modal Card */
+.review-modal-card {
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 24px 26px;
+  width: 100%;
+  max-width: 490px;
+  max-height: 88vh;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  direction: rtl;
+}
+
+.review-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.review-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+
+.btn-close-modal {
+  background: #f1f5f9;
+  border: none;
+  font-size: 1.1rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+.btn-close-modal:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: rotate(90deg);
+}
+
+.review-modal-body {
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+}
+
+/* Review Form */
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.review-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.review-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.review-text-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #f8fafc;
+}
+
+.review-text-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+  background: #ffffff;
+}
+
+.review-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Emoji Rating Component */
+.emoji-rating-box {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 16px 12px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.emoji-rating-legend {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.emoji-rating-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 360px;
+  gap: 6px;
+}
+
+.emoji-option-btn {
+  flex: 1;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 18px;
+  padding: 8px 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  opacity: 0.55;
+  filter: grayscale(40%);
+}
+
+.emoji-option-btn:hover {
+  opacity: 0.9;
+  filter: none;
+  transform: scale(1.12);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.emoji-option-btn.selected {
+  opacity: 1;
+  filter: none;
+  transform: scale(1.22);
+  background: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.25);
+}
+
+.emoji-char {
+  font-size: 2.3rem;
+  line-height: 1;
+}
+
+.emoji-level-num {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #64748b;
+}
+
+.emoji-option-btn.selected .emoji-level-num {
+  color: #4f46e5;
+}
+
+.selected-rating-description {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  font-size: 0.98rem;
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: #eef2ff;
+  color: #4338ca;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Submit Button */
+.btn-submit-review {
+  width: 100%;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.btn-submit-review:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.5);
+}
+
+.btn-submit-review:active {
+  transform: scale(0.98);
+}
+
+/* Success Card */
+.review-success-banner {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 24px 18px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.review-success-banner h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.4rem;
+}
+
+.review-success-banner p {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.95;
+}
+
+/* Barista Reviews List */
+.barista-reviews-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 2px 2px 10px 2px;
+}
+
+.barista-review-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.barista-review-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  border-color: #cbd5e1;
+}
+
+.barista-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reviewer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reviewer-name {
+  font-weight: 800;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.review-date-badge {
+  font-size: 0.78rem;
+  color: #64748b;
+  background: #ffffff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.review-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.review-rating-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 0.88rem;
+}
+
+.rating-pill-5 { background: #dcfce7; color: #15803d; }
+.rating-pill-4 { background: #e0f2fe; color: #0369a1; }
+.rating-pill-3 { background: #fef3c7; color: #b45309; }
+.rating-pill-2 { background: #ffedd5; color: #c2410c; }
+.rating-pill-1 { background: #fee2e2; color: #b91c1c; }
+
+.btn-delete-review {
+  background: #fee2e2;
+  border: none;
+  color: #dc2626;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  transition: all 0.2s;
+}
+
+.btn-delete-review:hover {
+  background: #fecaca;
+  transform: scale(1.1);
+}
+
+.barista-review-content {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  color: #334155;
+  line-height: 1.5;
+  border-right: 4px solid #6366f1;
+  word-break: break-word;
+}
+
+.barista-review-empty {
+  text-align: center;
+  padding: 40px 16px;
+  color: #64748b;
+}
+
+.barista-review-empty-icon {
+  font-size: 3.2rem;
+  margin-bottom: 12px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes popIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+
 

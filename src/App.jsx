@@ -206,6 +206,15 @@ const EMOJI_OPTIONS = (
   </>
 );
 
+const RATING_EMOJIS = [
+  { level: 1, emoji: '😭', label: 'בוכה מאוד' },
+  { level: 2, emoji: '🙁', label: 'לא משהו' },
+  { level: 3, emoji: '😐', label: 'בסדר' },
+  { level: 4, emoji: '😊', label: 'טוב מאוד' },
+  { level: 5, emoji: '🤩', label: 'מושלם!' }
+];
+
+
 export default function App() {
   // Use URL parameter to determine view. E.g. /?role=shirel
   const isShirel = window.location.search.includes('shirel');
@@ -214,6 +223,15 @@ export default function App() {
   // App State
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
+  
+  // Reviews State
+  const [reviews, setReviews] = useState([]);
+  const [showCustomerReviewModal, setShowCustomerReviewModal] = useState(false);
+  const [showBaristaReviewModal, setShowBaristaReviewModal] = useState(false);
+  const [reviewName, setReviewName] = useState('');
+  const [reviewText, setReviewText] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
   
   const initialOrdersLoaded = useRef(false);
 
@@ -307,11 +325,26 @@ export default function App() {
       }
     });
 
+    // 5. Listen to customer reviews
+    const unsubscribeReviews = onSnapshot(
+      collection(db, 'reviews'),
+      (snapshot) => {
+        const reviewsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        reviewsData.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        setReviews(reviewsData);
+      },
+      (error) => {
+        console.error("Firebase permissions/read error (reviews):", error);
+        setReviews([]);
+      }
+    );
+
     return () => {
       unsubscribeProducts();
       unsubscribeOrders();
       unsubscribeSettings();
       unsubscribeSlush();
+      unsubscribeReviews();
     };
   }, [isShirel]);
 
@@ -595,6 +628,60 @@ export default function App() {
     }
   };
 
+  const submitReview = async (e) => {
+    e.preventDefault();
+    if (!reviewText.trim() && !reviewRating) return;
+
+    try {
+      const selectedObj = RATING_EMOJIS.find(r => r.level === reviewRating) || RATING_EMOJIS[4];
+      await addDoc(collection(db, 'reviews'), {
+        name: reviewName.trim() || customerName.trim() || 'אנונימי',
+        text: reviewText.trim(),
+        rating: reviewRating,
+        emoji: selectedObj.emoji,
+        label: selectedObj.label,
+        timestamp: Date.now()
+      });
+
+      setReviewSubmitted(true);
+      setTimeout(() => {
+        setReviewSubmitted(false);
+        setReviewText('');
+        setReviewName('');
+        setReviewRating(5);
+        setShowCustomerReviewModal(false);
+      }, 1500);
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      alert('אירעה שגיאה בשליחת המשוב, אנא נסו שוב.');
+    }
+  };
+
+  const deleteReview = async (reviewId) => {
+    if (window.confirm('האם למחוק ביקורת זו?')) {
+      try {
+        await deleteDoc(doc(db, 'reviews', reviewId));
+      } catch (err) {
+        console.error('Error deleting review:', err);
+      }
+    }
+  };
+
+  const formatReviewDate = (timestamp) => {
+    if (!timestamp) return '';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleDateString('he-IL', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return '';
+    }
+  };
+
   return (
     <div className={`app-container ${view === 'barista' ? 'app-container-wide' : ''}`} dir="rtl">
       <div className="main-content">
@@ -714,6 +801,20 @@ export default function App() {
                 </form>
               </div>
             )}
+
+            {/* כפתור צף להשארת ביקורת בצד שמאל למטה */}
+            <button 
+              type="button" 
+              className="fab-review-btn" 
+              onClick={() => {
+                if (customerName.trim() && !reviewName) setReviewName(customerName);
+                setShowCustomerReviewModal(true);
+              }}
+              title="השאירו ביקורת 🗣️"
+            >
+              <span className="fab-review-icon">🗣️</span>
+              <span className="fab-review-text">ביקורת</span>
+            </button>
           </div>
         )}
 
@@ -1029,6 +1130,172 @@ export default function App() {
                 </div>
               </div>
             )}
+            {/* כפתור צף לצפייה בביקורות בעמדת שיראל */}
+            <button 
+              type="button" 
+              className="fab-review-btn barista-fab-review" 
+              onClick={() => setShowBaristaReviewModal(true)}
+              title="ביקורות לקוחות 🗣️"
+            >
+              <span className="fab-review-icon">🗣️</span>
+              {reviews.length > 0 && <span className="fab-review-badge">{reviews.length}</span>}
+              <span className="fab-review-text">ביקורות</span>
+            </button>
+          </div>
+        )}
+
+        {/* מודאל השארת ביקורת ללקוח */}
+        {showCustomerReviewModal && (
+          <div className="review-modal-backdrop" onClick={() => !reviewSubmitted && setShowCustomerReviewModal(false)}>
+            <div className="review-modal-card" onClick={(e) => e.stopPropagation()}>
+              <div className="review-modal-header">
+                <h2 className="review-modal-title">
+                  <span>🗣️</span>
+                  <span>ספרו לנו מה דעתכם!</span>
+                </h2>
+                <button 
+                  type="button" 
+                  className="btn-close-modal" 
+                  onClick={() => setShowCustomerReviewModal(false)}
+                  disabled={reviewSubmitted}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="review-modal-body">
+                {reviewSubmitted ? (
+                  <div className="review-success-banner">
+                    <h3>תודה רבה על הביקורת! ❤️</h3>
+                    <p>המשוב שלכם עוזר לנו להשתפר ולהעניק את השירות הטוב ביותר ✨</p>
+                  </div>
+                ) : (
+                  <form onSubmit={submitReview} className="review-form">
+                    <div className="review-input-group">
+                      <label className="review-label">השם שלכם (לא חובה):</label>
+                      <input 
+                        type="text" 
+                        className="review-text-input" 
+                        placeholder="איך לקרוא לכם?" 
+                        value={reviewName}
+                        onChange={(e) => setReviewName(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="review-input-group">
+                      <label className="review-label">מלל חופשי:</label>
+                      <textarea 
+                        className="review-text-input review-textarea" 
+                        placeholder="ספרו לנו על הטעם, השירות, האווירה או כל מה שתרצו..."
+                        value={reviewText}
+                        onChange={(e) => setReviewText(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="emoji-rating-box">
+                      <span className="emoji-rating-legend">דרגו אותנו במקום כוכבים:</span>
+                      
+                      <div className="emoji-rating-row">
+                        {RATING_EMOJIS.map((item) => (
+                          <button
+                            key={item.level}
+                            type="button"
+                            className={`emoji-option-btn ${reviewRating === item.level ? 'selected' : ''}`}
+                            onClick={() => setReviewRating(item.level)}
+                            title={item.label}
+                          >
+                            <span className="emoji-char">{item.emoji}</span>
+                            <span className="emoji-level-num">{item.level}</span>
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="selected-rating-description">
+                        <span>{RATING_EMOJIS.find(r => r.level === reviewRating)?.emoji}</span>
+                        <span>{RATING_EMOJIS.find(r => r.level === reviewRating)?.label}</span>
+                      </div>
+                    </div>
+
+                    <button type="submit" className="btn-submit-review">
+                      <span>שליחת ביקורת</span>
+                      <span>✨</span>
+                    </button>
+                  </form>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* מודאל צפייה בביקורות לשיראל */}
+        {showBaristaReviewModal && isShirel && (
+          <div className="review-modal-backdrop" onClick={() => setShowBaristaReviewModal(false)}>
+            <div className="review-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '580px' }}>
+              <div className="review-modal-header">
+                <h2 className="review-modal-title">
+                  <span>🗣️</span>
+                  <span>ביקורות לקוחות ({reviews.length})</span>
+                </h2>
+                <button 
+                  type="button" 
+                  className="btn-close-modal" 
+                  onClick={() => setShowBaristaReviewModal(false)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="review-modal-body">
+                {reviews.length === 0 ? (
+                  <div className="barista-review-empty">
+                    <div className="barista-review-empty-icon">☕✨</div>
+                    <h3>אין ביקורות עדיין</h3>
+                    <p>כאשר לקוחות ישלחו ביקורות מהתפריט, הן יופיעו כאן בזמן אמת!</p>
+                  </div>
+                ) : (
+                  <div className="barista-reviews-container">
+                    {reviews.map((rev) => (
+                      <div key={rev.id} className="barista-review-card">
+                        <div className="barista-review-header">
+                          <div className="reviewer-info">
+                            <span className="reviewer-name">{rev.name || 'אנונימי'}</span>
+                            {rev.timestamp && (
+                              <span className="review-date-badge">{formatReviewDate(rev.timestamp)}</span>
+                            )}
+                          </div>
+                          
+                          <div className="review-actions">
+                            <span className={`review-rating-pill rating-pill-${rev.rating || 5}`}>
+                              <span>{rev.emoji || '⭐'}</span>
+                              <span>{rev.rating ? `${rev.rating}/5` : ''}</span>
+                            </span>
+                            <button 
+                              type="button" 
+                              className="btn-delete-review" 
+                              onClick={() => deleteReview(rev.id)}
+                              title="מחק ביקורת זו"
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        </div>
+
+                        {rev.text ? (
+                          <div className="barista-review-content">
+                            "{rev.text}"
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: '0.85rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                            (דירוג בלבד ללא מלל)
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
