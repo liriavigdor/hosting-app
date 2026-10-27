@@ -352,17 +352,25 @@ export default function App() {
   const [baristaTab, setBaristaTab] = useState('orders'); // 'orders', 'menu'
   const [newProductName, setNewProductName] = useState('');
   const [newProductIcon, setNewProductIcon] = useState('☕');
-  const [collapsedCols, setCollapsedCols] = useState({
-    drinks: false,
-    food: false,
-    summary: false
+  const [collapsedCols, setCollapsedCols] = useState(() => {
+    try {
+      const saved = localStorage.getItem('barista_collapsed_columns');
+      return saved ? JSON.parse(saved) : { drinks: false, food: false, summary: false };
+    } catch {
+      return { drinks: false, food: false, summary: false };
+    }
   });
 
   const toggleCol = (colName) => {
-    setCollapsedCols(prev => ({
-      ...prev,
-      [colName]: !prev[colName]
-    }));
+    setCollapsedCols(prev => {
+      const updated = { ...prev, [colName]: !prev[colName] };
+      try {
+        localStorage.setItem('barista_collapsed_columns', JSON.stringify(updated));
+      } catch (e) {
+        console.error(e);
+      }
+      return updated;
+    });
   };
 
   // Memoized Processed Orders
@@ -850,40 +858,64 @@ export default function App() {
             </div>
 
             {baristaTab === 'orders' && (
-              <div className="barista-parallel-columns" style={{ display: 'flex', flexDirection: 'row', gap: '8px', width: '100%', alignItems: 'flex-start' }}>
-                {/* עמודה 1: הזמנות שתייה */}
-                <div 
-                  className={`barista-column drinks-col ${collapsedCols.drinks ? 'is-collapsed' : ''}`}
-                  onClick={collapsedCols.drinks ? () => toggleCol('drinks') : undefined}
-                  title={collapsedCols.drinks ? "לחץ להרחבת שתייה" : undefined}
-                >
-                  {collapsedCols.drinks ? (
-                    <button 
-                      type="button" 
-                      className="arrow-toggle-btn" 
-                      onClick={() => toggleCol('drinks')}
-                      title="הרחב תפריט שתייה"
-                    >
-                      ▶
-                    </button>
-                  ) : (
-                    <>
+              <>
+                {/* סרגל בחירת תצוגת עמודות */}
+                <div className="columns-control-bar">
+                  <span className="columns-control-hint">תצוגת עמודות:</span>
+                  <button 
+                    type="button"
+                    className={`col-pill-btn drinks-pill ${!collapsedCols.drinks ? 'is-open' : 'is-collapsed'}`}
+                    onClick={() => toggleCol('drinks')}
+                    title={!collapsedCols.drinks ? "לחץ להעלמת תפריט שתייה" : "לחץ להצגת תפריט שתייה"}
+                  >
+                    <span>☕</span>
+                    <span>שתייה ({pendingDrinksOrders.length})</span>
+                    <span className="col-pill-status">{!collapsedCols.drinks ? '👁️ מוצג' : '🙈 מוסתר'}</span>
+                  </button>
+
+                  <button 
+                    type="button"
+                    className={`col-pill-btn food-pill ${!collapsedCols.food ? 'is-open' : 'is-collapsed'}`}
+                    onClick={() => toggleCol('food')}
+                    title={!collapsedCols.food ? "לחץ להעלמת תפריט מזון" : "לחץ להצגת תפריט מזון"}
+                  >
+                    <span>🥪</span>
+                    <span>מזון ({pendingFoodOrders.length})</span>
+                    <span className="col-pill-status">{!collapsedCols.food ? '👁️ מוצג' : '🙈 מוסתר'}</span>
+                  </button>
+
+                  <button 
+                    type="button"
+                    className={`col-pill-btn summary-pill ${!collapsedCols.summary ? 'is-open' : 'is-collapsed'}`}
+                    onClick={() => toggleCol('summary')}
+                    title={!collapsedCols.summary ? "לחץ להעלמת תפריט כמויות" : "לחץ להצגת תפריט כמויות"}
+                  >
+                    <span>⚡</span>
+                    <span>כמה להכין ({totalDrinksToPrepare})</span>
+                    <span className="col-pill-status">{!collapsedCols.summary ? '👁️ מוצג' : '🙈 מוסתר'}</span>
+                  </button>
+                </div>
+
+                <div className="barista-parallel-columns" style={{ display: 'flex', flexDirection: 'row', gap: '12px', width: '100%', alignItems: 'flex-start' }}>
+                  {/* עמודה 1: הזמנות שתייה - נעלמת לחלוטין כאשר מסומן צמצום */}
+                  {!collapsedCols.drinks && (
+                    <div className="barista-column drinks-col">
                       <div className="column-header-bar">
                         <div className="column-header-title">
                           <span>☕</span>
                           <span>הזמנות שתייה</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span className="column-header-count drinks-count-badge">
                             {pendingDrinksOrders.length}
                           </span>
                           <button 
                             type="button" 
-                            className="arrow-toggle-btn" 
+                            className="btn-hide-col" 
                             onClick={() => toggleCol('drinks')}
-                            title="צמצם תפריט שתייה"
+                            title="העלם עמודה זו"
                           >
-                            ◀
+                            ✕
                           </button>
                         </div>
                       </div>
@@ -917,43 +949,28 @@ export default function App() {
                           ))}
                         </div>
                       )}
-                    </>
+                    </div>
                   )}
-                </div>
 
-                {/* עמודה 2: הזמנות מזון */}
-                <div 
-                  className={`barista-column food-col ${collapsedCols.food ? 'is-collapsed' : ''}`}
-                  onClick={collapsedCols.food ? () => toggleCol('food') : undefined}
-                  title={collapsedCols.food ? "לחץ להרחבת מזון" : undefined}
-                >
-                  {collapsedCols.food ? (
-                    <button 
-                      type="button" 
-                      className="arrow-toggle-btn" 
-                      onClick={() => toggleCol('food')}
-                      title="הרחב תפריט מזון"
-                    >
-                      ▶
-                    </button>
-                  ) : (
-                    <>
+                  {/* עמודה 2: הזמנות מזון - נעלמת לחלוטין כאשר מסומן צמצום */}
+                  {!collapsedCols.food && (
+                    <div className="barista-column food-col">
                       <div className="column-header-bar">
                         <div className="column-header-title">
                           <span>🥪</span>
                           <span>הזמנות מזון</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span className="column-header-count food-count-badge">
                             {pendingFoodOrders.length}
                           </span>
                           <button 
                             type="button" 
-                            className="arrow-toggle-btn" 
+                            className="btn-hide-col" 
                             onClick={() => toggleCol('food')}
-                            title="צמצם תפריט מזון"
+                            title="העלם עמודה זו"
                           >
-                            ◀
+                            ✕
                           </button>
                         </div>
                       </div>
@@ -987,43 +1004,28 @@ export default function App() {
                           ))}
                         </div>
                       )}
-                    </>
+                    </div>
                   )}
-                </div>
 
-                {/* עמודה 3: כמה מכל סוג קפה/שתייה להכין */}
-                <div 
-                  className={`barista-column summary-col ${collapsedCols.summary ? 'is-collapsed' : ''}`}
-                  onClick={collapsedCols.summary ? () => toggleCol('summary') : undefined}
-                  title={collapsedCols.summary ? "לחץ להרחבת כמויות" : undefined}
-                >
-                  {collapsedCols.summary ? (
-                    <button 
-                      type="button" 
-                      className="arrow-toggle-btn" 
-                      onClick={() => toggleCol('summary')}
-                      title="הרחב תפריט כמויות"
-                    >
-                      ▶
-                    </button>
-                  ) : (
-                    <>
+                  {/* עמודה 3: כמה מכל סוג קפה/שתייה להכין - נעלמת לחלוטין כאשר מסומן צמצום */}
+                  {!collapsedCols.summary && (
+                    <div className="barista-column summary-col">
                       <div className="column-header-bar">
                         <div className="column-header-title">
                           <span>⚡</span>
                           <span>כמה להכין עכשיו</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span className="column-header-count summary-count-badge">
                             {totalDrinksToPrepare} כוסות
                           </span>
                           <button 
                             type="button" 
-                            className="arrow-toggle-btn" 
+                            className="btn-hide-col" 
                             onClick={() => toggleCol('summary')}
-                            title="צמצם תפריט כמויות"
+                            title="העלם עמודה זו"
                           >
-                            ◀
+                            ✕
                           </button>
                         </div>
                       </div>
@@ -1062,10 +1064,19 @@ export default function App() {
                           ))}
                         </div>
                       )}
-                    </>
+                    </div>
+                  )}
+
+                  {/* הודעה אם כל העמודות הועלמו */}
+                  {collapsedCols.drinks && collapsedCols.food && collapsedCols.summary && (
+                    <div className="empty-state" style={{ width: '100%', background: 'rgba(255,255,255,0.7)', borderRadius: '16px', padding: '30px' }}>
+                      <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold' }}>
+                        כל התפריטים מוסתרים כרגע. לחצו על אחד הכפתורים בסרגל "תצוגת עמודות" למעלה כדי להציג 👆
+                      </p>
+                    </div>
                   )}
                 </div>
-              </div>
+              </>
             )}
 
             {baristaTab === 'menu' && (
