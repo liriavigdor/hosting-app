@@ -317,7 +317,183 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* --- BARISTA COLUMNS COLLAPSIBLE SYSTEM --- */
+.columns-control-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(8px);
+  padding: 8px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.columns-control-hint {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #64748b;
+  margin-left: 6px;
+}
+
+.col-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.col-pill-btn:hover {
+  transform: translateY(-1px);
+}
+
+.col-pill-btn.drinks-pill.is-open {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+}
+
+.col-pill-btn.food-pill.is-open {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #fcd34d;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+
+.col-pill-btn.summary-pill.is-open {
+  background: #ede9fe;
+  color: #6d28d9;
+  border-color: #c4b5fd;
+  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.15);
+}
+
+.col-pill-btn.is-collapsed {
+  opacity: 0.65;
+  border-style: dashed;
+  border-color: #cbd5e1;
+}
+
+.col-pill-arrow {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-right: 2px;
+}
+
+.btn-collapse-col {
+  background: rgba(0, 0, 0, 0.06);
+  border: none;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-collapse-col:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: #0f172a;
+}
+
+/* Collapsed column style */
+.barista-column.is-collapsed {
+  flex: 0 0 50px !important;
+  width: 50px !important;
+  min-width: 50px !important;
+  padding: 10px 4px !important;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.6);
+  align-items: center;
+}
+
+.barista-column.is-collapsed:hover {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.collapsed-column-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  min-height: 220px;
+  gap: 12px;
+  padding: 8px 0;
+  cursor: pointer;
+  width: 100%;
+}
+
+.collapsed-col-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.collapsed-vertical-title {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #334155;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  margin-top: 10px;
+}
+
+.collapsed-expand-hint {
+  font-size: 0.85rem;
+  color: #4f46e5;
+  background: #eef2ff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
+}
+
+@media (max-width: 650px) {
+  .barista-column.is-collapsed {
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    padding: 8px 2px !important;
+  }
+  
+  .columns-control-bar {
+    gap: 6px;
+    padding: 6px 10px;
+  }
+
+  .col-pill-btn {
+    padding: 5px 10px;
+    font-size: 0.84rem;
+  }
+}
+
 
 .drinks-col {
   border-top: 4px solid #ff6b6b;
