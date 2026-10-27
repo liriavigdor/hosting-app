@@ -320,60 +320,100 @@ body {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* --- BARISTA COLUMNS ARROW COLLAPSE SYSTEM --- */
-.arrow-toggle-btn {
-  background: rgba(0, 0, 0, 0.06);
+/* --- BARISTA COLUMNS VISIBILITY SYSTEM --- */
+.columns-control-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(8px);
+  padding: 8px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.columns-control-hint {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #475569;
+  margin-left: 6px;
+}
+
+.col-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.col-pill-btn:hover {
+  transform: translateY(-1px);
+}
+
+.col-pill-btn.drinks-pill.is-open {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+}
+
+.col-pill-btn.food-pill.is-open {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #fcd34d;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+
+.col-pill-btn.summary-pill.is-open {
+  background: #ede9fe;
+  color: #6d28d9;
+  border-color: #c4b5fd;
+  box-shadow: 0 2px 8px rgba(109, 40, 217, 0.15);
+}
+
+.col-pill-btn.is-collapsed {
+  opacity: 0.6;
+  border-style: dashed;
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.col-pill-status {
+  font-size: 0.82rem;
+  margin-right: 2px;
+}
+
+.btn-hide-col {
+  background: rgba(0, 0, 0, 0.05);
   border: none;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 800;
-  color: #475569;
+  color: #64748b;
   transition: all 0.2s ease;
-  line-height: 1;
 }
 
-.arrow-toggle-btn:hover {
-  background: rgba(0, 0, 0, 0.12);
-  color: #0f172a;
+.btn-hide-col:hover {
+  background: #fee2e2;
+  color: #dc2626;
   transform: scale(1.1);
-}
-
-/* Collapsed column style - shrinks so ONLY the small arrow remains */
-.barista-column.is-collapsed {
-  flex: 0 0 28px !important;
-  width: 28px !important;
-  min-width: 28px !important;
-  max-width: 28px !important;
-  padding: 8px 0 !important;
-  cursor: pointer;
-  overflow: hidden;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  background: rgba(255, 255, 255, 0.5) !important;
-  border-radius: 12px;
-  border-width: 1px !important;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: none !important;
-}
-
-.barista-column.is-collapsed:hover {
-  background: rgba(255, 255, 255, 0.85) !important;
-}
-
-.barista-column.is-collapsed .arrow-toggle-btn {
-  background: transparent;
-  color: #4f46e5;
-  font-size: 1rem;
-  width: 24px;
-  height: 28px;
 }
 
 
